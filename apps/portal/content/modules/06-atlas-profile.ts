@@ -25,8 +25,8 @@ export const module06: ModuleContentFull = {
       blocks: [
         {
           type: "image",
-          url: "/brand/module_banner.jpg",
-          caption: "Imagem descritiva"
+          url: "/brand/screenshots/perfil-securitario.png",
+          caption: "Tela de Registros Recentes (recentRecords) do Atlas Profile: Consulta de candidatos em 40+ tribunais, biometria FaceID com liveness e proteção LGPD."
         },
         {
           type: "quote",
@@ -75,6 +75,11 @@ export const module06: ModuleContentFull = {
             { value: "3s", label: "Tempo médio de resposta do motor do Profile para consultas básicas." },
             { value: "40+", label: "Bases governamentais consultadas instantaneamente." }
           ]
+        },
+        {
+          type: "image",
+          url: "/brand/screenshots/perfil_securitario_profile.png",
+          caption: "Tela Real de Pesquisa Profile (/search/profile): Formulário de submissão com dados do condutor (CPF, Nome, Filiação), CNH e validação biométrica com anonimização LGPD."
         },
         {
           type: "checklist",

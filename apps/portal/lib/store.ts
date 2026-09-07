@@ -26,6 +26,7 @@ interface OnboardingState {
   certificate: CertificateInfo | null;
   exploredAcademyTools: string[];
   createdAgents: AgentBlueprint[];
+  myList: string[];
   hasHydrated: boolean;
   onboardingCompleted: boolean;
 
@@ -36,6 +37,7 @@ interface OnboardingState {
   completeOnboarding: () => void;
   clearRegistration: () => void;
   touchStreak: () => void;
+  toggleMyList: (slug: string) => void;
   completeModuleQuiz: (slug: string, score: number) => boolean;
   setExamResult: (result: ExamResult) => void;
   issueCertificate: (cert: CertificateInfo) => void;
@@ -67,11 +69,18 @@ export const useOnboardingStore = create<OnboardingState>()(
       certificate: null,
       exploredAcademyTools: [],
       createdAgents: [],
+      myList: [],
       hasHydrated: false,
       onboardingCompleted: false,
 
       setHasHydrated: (v) => set({ hasHydrated: v }),
       completeOnboarding: () => set({ onboardingCompleted: true }),
+      toggleMyList: (slug) =>
+        set((s) => {
+          const list = s.myList || [];
+          const exists = list.includes(slug);
+          return { myList: exists ? list.filter((item) => item !== slug) : [...list, slug] };
+        }),
 
       // Cadastro é feito exclusivamente pelo Administrador (painel /admin).
       // O colaborador apenas faz seu primeiro acesso escolhendo o próprio nome.

@@ -25,8 +25,8 @@ export const module05: ModuleContentFull = {
       blocks: [
         {
           type: "image",
-          url: "/brand/module_banner.jpg",
-          caption: "Imagem descritiva"
+          url: "/brand/screenshots/newconnect-dashboard.png",
+          caption: "Cockpit Operacional Atlas NewConnect: Monitoramento em tempo real, KPIs de conectividade e Fila de Alertas prioritários (P1 a P7) com regras de IA."
         },
         {
           type: "text",
@@ -86,6 +86,11 @@ export const module05: ModuleContentFull = {
       title: "Capítulo 2: O Ciclo de Operação de um SM",
       blocks: [
         {
+          type: "image",
+          url: "/brand/screenshots/portalatlas-sm.png",
+          caption: "Portal Atlas Core (Atlas_Principal.php): Painel detalhado de Solicitação de Monitoramento (SM), conferência de atuadores e parametrização de apólice PGR."
+        },
+        {
           type: "timeline",
           title: "O Life Cycle da Solicitação de Monitoramento",
           items: [
@@ -108,6 +113,11 @@ export const module05: ModuleContentFull = {
               "Na Torre AtlasGR, o operador jamais sai à caça de problemas no mapa. É o Motor de Regras IA que peneira o caos, injetando alertas diretamente na veia do fluxo de trabalho. A hierarquia imposta pelo algoritmo não é sugestiva; ela é uma lei marcial.",
             ],
           ],
+        },
+        {
+          type: "image",
+          url: "/brand/screenshots/newconnect_tela_alerta.png",
+          caption: "Tela Real de Alertas do NewConnect: Priorização por cores/níveis de risco (desengate fora de alvo, violação de carona, perda de sinal > 1h, desvio de rota) e tecnologias integradas (Autotrac, Sighra, Sascar, Onixsat, Omnilink) com dados protegidos (LGPD)."
         },
         {
           type: "checklist",

@@ -34,6 +34,7 @@ import { ModuleRating } from "@/components/module/ModuleRating";
 import { CertificateActions } from "@/components/module/CertificateActions";
 import type { ContentBlock, ModuleContentFull, ModuleSection, ModuleMeta, QuizQuestionClient } from "@/lib/types";
 import { AccessibilityToolbar } from "@/components/accessibility/AccessibilityToolbar";
+import { ModuleTitle } from "@/components/brand/ModuleTitle";
 
 type Screen =
   | { kind: "cover" }
@@ -263,10 +264,10 @@ export function ModulePageClient() {
                 initial={{ opacity: 0, y: 28, rotateX: 8 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{ duration: 0.7, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="relative z-10 mt-8 max-w-4xl text-balance font-display text-5xl font-black leading-[0.98] tracking-[-0.05em] text-gradient-title md:text-7xl"
+                className="relative z-10 mt-8 max-w-4xl text-balance font-display text-5xl font-black leading-[0.98] tracking-[-0.05em] text-atlas-orange md:text-7xl drop-shadow-[0_4px_24px_rgba(255,86,24,0.3)]"
                 style={{ transformOrigin: "50% 100%" }}
               >
-                {content.title}
+                <ModuleTitle title={content.title} />
               </motion.h1>
               <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }} className="relative z-10 mx-auto mt-6 max-w-3xl text-balance text-lg font-medium leading-relaxed text-muted md:text-xl">{meta.shortDescription}</motion.p>
               <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.34 }} className="relative z-10 mt-10 flex items-center gap-2.5 rounded-2xl border border-atlas-orange/20 bg-surface/80 px-5 py-3 text-xs font-bold text-foreground backdrop-blur-md">

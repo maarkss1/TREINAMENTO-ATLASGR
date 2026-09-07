@@ -1,58 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Sparkles, ListChecks, Calendar, Clock } from "lucide-react";
+import {
+  Sparkles,
+  Trophy,
+  Compass,
+  Play,
+  Bookmark,
+  CheckCircle2,
+  TrendingUp,
+  Layers,
+  ArrowRight,
+  Tv,
+} from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { Logo } from "@/components/brand/Logo";
+import { NetflixHeroBillboard } from "@/components/streaming/NetflixHeroBillboard";
+import { NetflixContentRail } from "@/components/streaming/NetflixContentRail";
+import { ModuleDetailModal } from "@/components/streaming/ModuleDetailModal";
+import { AppleBentoShowcase } from "@/components/streaming/AppleBentoShowcase";
+import { moduleMetas } from "@/content/modules";
 import { useOnboardingStore } from "@/lib/store";
-import { useToastStore } from "@/lib/toastStore";
-
-const FEATURES = [
-  { icon: Building2, text: "Desenvolvimento corporativo contínuo e integrado" },
-  { icon: Sparkles, text: "Trilhas de capacitação guiadas e especializadas" },
-  { icon: ListChecks, text: "Gestão de conhecimento com avaliação prática" },
-];
+import type { ModuleMeta } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   const router = useRouter();
-  const [returnTo, setReturnTo] = useState<string | null>(null);
-  const [email, setEmail] = useState("marcelo.nascimento@atlasgr.com.br");
-  const [password, setPassword] = useState("••••••••");
-  const [currentTime, setCurrentTime] = useState("");
-  const [currentDate, setCurrentDate] = useState("");
+  const [selectedModule, setSelectedModule] = useState<ModuleMeta | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
-  const showToast = useToastStore((s) => s.show);
   const registration = useOnboardingStore((state) => state.registration);
-  const enrolled = useOnboardingStore((state) => state.enrolled);
-  const startSessionAs = useOnboardingStore((state) => state.startSessionAs);
+  const progress = useOnboardingStore((state) => state.progress);
+  const myList = useOnboardingStore((state) => state.myList || []);
 
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = { weekday: "long", day: "2-digit", month: "long" };
-      let dateStr = now.toLocaleDateString("pt-BR", options);
-      // Capitalize first letter
-      dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-      setCurrentDate(dateStr);
-      setCurrentTime(now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
-    };
-
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
+  // Garante inicialização fluida da sessão corporativa
   useEffect(() => {
     if (!registration) {
       useOnboardingStore.setState({
         registration: {
-          nomeCompleto: "Colaborador Atlas",
-          cargo: "Operações",
-          departamento: "Logística Inteligente",
-          email: "colaborador@atlasgr.com.br",
+          nomeCompleto: "Marcelo Nascimento",
+          cargo: "Especialista em Operações e Logística",
+          departamento: "Logística Inteligente & Central de Risco",
+          email: "marcelo.nascimento@atlasgr.com.br",
           cpf: "000.000.000-00",
-          gestor: "Diretoria",
+          gestor: "Diretoria de Operações",
           telefone: "(11) 99999-9999",
           empresa: "AtlasGR",
           cidade: "Campinas",
@@ -66,194 +58,246 @@ export default function HomePage() {
         hasHydrated: true,
       });
     }
-    router.replace("/trilha");
-  }, [registration, router]);
+  }, [registration]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Find matching enrolled user or use first enrolled or create session
-    const matched = enrolled.find((u) => u.email?.toLowerCase() === email.toLowerCase());
-    if (matched) {
-      startSessionAs(matched.id);
-    } else if (enrolled.length > 0) {
-      startSessionAs(enrolled[0].id);
-    } else {
-      // Fallback direct session
-      const nameFromEmail = email.split("@")[0].replace(".", " ");
-      const formattedName = nameFromEmail
-        .split(" ")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ");
+  // Módulos destacados para o Hero Billboard (Top Masterclasses)
+  const featuredModules = useMemo(() => {
+    const featuredSlugs = [
+      "01-bem-vindo-atlasgr",
+      "03-gerenciamento-risco",
+      "05-software-logistico",
+      "13-tecnologia",
+    ];
+    return featuredSlugs
+      .map((slug) => moduleMetas.find((m) => m.slug === slug))
+      .filter((m): m is ModuleMeta => Boolean(m));
+  }, []);
 
-      useOnboardingStore.setState({
-        registration: {
-          nomeCompleto: formattedName || "Marcelo Nascimento",
-          cargo: "Colaborador Atlas",
-          departamento: "Operações",
-          email: email,
-          cpf: "000.000.000-00",
-          gestor: "Diretoria",
-          telefone: "(11) 99999-9999",
-          empresa: "AtlasGR",
-          cidade: "Campinas",
-          estado: "SP",
-          dataHora: new Date().toISOString(),
-          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
-          consentimentoLGPD: true,
-          aceiteTermos: true,
-        },
-        onboardingCompleted: true,
-        hasHydrated: true,
-      });
-    }
-
-    showToast({
-      title: "Login realizado",
-      description: "Bem-vindo à plataforma de treinamento AtlasGR!",
-      variant: "success",
+  // Trilho: Continuar Assistindo (módulos iniciados ou em andamento)
+  const inProgressModules = useMemo(() => {
+    return moduleMetas.filter((m) => {
+      const p = progress[m.slug];
+      return p && (!p.passed || (p.attempts && p.attempts > 0));
     });
+  }, [progress]);
 
-    router.push(returnTo || "/trilha");
-  };
+  // Trilho: Top 10 mais relevantes
+  const top10Modules = useMemo(() => {
+    return moduleMetas.slice(0, 10);
+  }, []);
+
+  // Filtro de categorias
+  const filteredModules = useMemo(() => {
+    if (selectedFilter === "all") return moduleMetas;
+    if (selectedFilter === "mylist") return moduleMetas.filter((m) => myList.includes(m.slug));
+    if (selectedFilter === "fundamentos") return moduleMetas.filter((m) => m.category === "Fundamentos");
+    if (selectedFilter === "solucoes") return moduleMetas.filter((m) => m.category === "Soluções ATLASGR");
+    if (selectedFilter === "operacao")
+      return moduleMetas.filter((m) => m.category === "Excelência operacional" || m.category === "Mercado e clientes");
+    return moduleMetas;
+  }, [selectedFilter, myList]);
+
+  const fundamentosModules = moduleMetas.filter((m) => m.category === "Fundamentos");
+  const solucoesModules = moduleMetas.filter((m) => m.category === "Soluções ATLASGR");
+  const mercadoModules = moduleMetas.filter((m) => m.category === "Mercado e clientes");
+  const operacaoModules = moduleMetas.filter((m) => m.category === "Excelência operacional" || m.category === "Conclusão");
+
+  const filterTabs = [
+    { id: "all", label: "Todos os Módulos" },
+    { id: "mylist", label: `Minha Lista (${myList.length})` },
+    { id: "fundamentos", label: "Fundamentos & Risco" },
+    { id: "solucoes", label: "Software & Connect" },
+    { id: "operacao", label: "Excelência Operacional" },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FCFCFC]">
-      <SiteHeader hideNavLinks />
+    <div className="min-h-screen bg-background text-foreground selection:bg-atlas-orange selection:text-white pb-20">
+      {/* Header Fixo Translúcido Apple/Netflix */}
+      <SiteHeader />
 
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Painel Visual Esquerdo */}
-        <div
-          className="hidden lg:flex lg:w-[48%] relative overflow-hidden items-center justify-center px-12 py-16"
-          style={{
-            background: "linear-gradient(135deg, #B23B0E 0%, #D84814 45%, #C2410C 100%)",
-          }}
-        >
-          {/* Subtle dot pattern */}
-          <svg
-            className="pointer-events-none absolute inset-0 w-full h-full opacity-15"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern id="login-dot-grid" width="24" height="24" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.5" fill="white" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#login-dot-grid)" />
-          </svg>
+      {/* Hero Billboard Cinematográfico */}
+      <NetflixHeroBillboard
+        featuredModules={featuredModules}
+        progress={progress}
+        onOpenDetails={(mod) => setSelectedModule(mod)}
+      />
 
-          <div className="relative z-10 w-full max-w-lg space-y-8">
-            {/* Top Logo */}
-            <div className="flex items-center gap-3">
-              <Logo className="h-12 w-auto brightness-0 invert" />
-            </div>
-
-            {/* Glass Card Container */}
-            <div className="rounded-2xl bg-black/15 backdrop-blur-md p-8 border border-white/10 shadow-2xl">
-              <h2 className="text-3xl font-black leading-tight text-white font-display">
-                Capacitação e Inteligência Logística
-              </h2>
-              <p className="mt-2 text-sm text-white/80 font-normal">
-                A central de desenvolvimento corporativo da AtlasGR.
-              </p>
-
-              <ul className="mt-8 space-y-5">
-                {FEATURES.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-3.5">
-                    <span className="grid place-items-center w-10 h-10 rounded-xl bg-[#E65100]/90 text-white shadow-md shrink-0">
-                      <Icon className="w-5 h-5" />
-                    </span>
-                    <span className="text-sm font-medium text-white/95 leading-snug">{text}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* Filtros em Formato de Pílulas Estilo Apple */}
+      <div className="sticky top-16 z-30 bg-background/90 dark:bg-[#08080a]/90 backdrop-blur-xl border-b border-border dark:border-white/10 py-3.5 px-6 sm:px-10 lg:px-14">
+        <div className="mx-auto max-w-[1700px] flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2 shrink-0">
+            {filterTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedFilter(tab.id)}
+                className={cn(
+                  "px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap",
+                  selectedFilter === tab.id
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-black shadow-md scale-105"
+                    : "bg-surface-2 dark:bg-white/10 hover:bg-zinc-200 dark:hover:bg-white/20 text-muted dark:text-zinc-300 border border-border dark:border-white/10"
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        {/* Painel de Formulário Direito */}
-        <div className="flex-1 flex flex-col justify-between p-6 sm:p-12 relative">
-          {/* Top Date & Time */}
-          <div className="flex items-center justify-end gap-3 text-xs font-bold text-[#7C2D12] tracking-wide pt-2 pr-2">
-            <div className="flex items-center gap-1.5">
-              <Calendar size={14} className="text-[#7C2D12]" />
-              <span>{currentDate || "Carregando data..."}</span>
-            </div>
+          <div className="hidden md:flex items-center gap-3 text-xs font-mono text-muted dark:text-zinc-400 shrink-0">
+            <span className="flex items-center gap-1.5">
+              <Tv size={14} className="text-atlas-orange" />
+              Streaming Corporativo
+            </span>
             <span>•</span>
-            <div className="flex items-center gap-1.5">
-              <Clock size={14} className="text-[#7C2D12]" />
-              <span>{currentTime || "10:00:00"}</span>
-            </div>
-          </div>
-
-          {/* Form Content */}
-          <div className="my-auto mx-auto w-full max-w-[420px] py-10">
-            <h1 className="text-4xl font-extrabold text-[#7C2D12] text-center mb-8 tracking-tight font-display">
-              Bem-vindo
-            </h1>
-
-            <div className="bg-white rounded-[28px] p-8 shadow-[0_12px_40px_rgba(0,0,0,0.06)] border border-slate-100">
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="block text-xs font-black tracking-wider text-[#7C2D12] uppercase mb-2">
-                    E-MAIL:
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="marcelo.nascimento@atlasgr.com.br"
-                    className="w-full bg-[#EEF4FF] text-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium outline-none transition focus:ring-2 focus:ring-[#FF8C5A] border-none placeholder:text-slate-400"
-                  />
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-black tracking-wider text-[#7C2D12] uppercase">
-                      SENHA:
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        showToast({
-                          title: "Redefinição de senha",
-                          description: "Solicite a redefinição diretamente ao administrador.",
-                          variant: "info",
-                        })
-                      }
-                      className="text-xs font-bold text-[#7C2D12] hover:underline"
-                    >
-                      Esqueci minha senha
-                    </button>
-                  </div>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full bg-[#EEF4FF] text-slate-800 rounded-xl px-4 py-3.5 text-sm font-medium outline-none transition focus:ring-2 focus:ring-[#FF8C5A] border-none placeholder:text-slate-400"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full mt-6 py-3.5 px-6 rounded-2xl font-bold text-white bg-gradient-to-r from-[#FFA278] to-[#FF8C5A] hover:brightness-95 active:scale-[0.99] shadow-md shadow-[#FFA278]/40 flex items-center justify-center gap-2 transition text-sm cursor-pointer"
-                >
-                  <span>Entrar</span>
-                  <span>→</span>
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Footer note */}
-          <div className="text-center text-xs text-muted/60 py-2">
-            © {new Date().getFullYear()} ATLASGR. Todos os direitos reservados.
+            <span>15 Módulos 4K</span>
           </div>
         </div>
       </div>
+
+      {/* Conteúdo em Trilhos (Netflix Rails) ou Filtrado */}
+      <main className="space-y-6 pt-4">
+        {selectedFilter !== "all" ? (
+          /* Visualização de Categoria Filtrada */
+          <div className="mx-auto max-w-[1700px] px-6 sm:px-10 lg:px-14 py-8">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl sm:text-3xl font-black font-display text-foreground dark:text-white">
+                {filterTabs.find((t) => t.id === selectedFilter)?.label}
+              </h2>
+              <span className="text-xs font-mono text-muted dark:text-zinc-400 font-semibold">
+                {filteredModules.length} ITENS ENCONTRADOS
+              </span>
+            </div>
+
+            {filteredModules.length === 0 ? (
+              <div className="py-20 text-center rounded-2xl bg-surface dark:bg-[#121319] border border-border dark:border-white/10 p-8 shadow-sm">
+                <Bookmark size={36} className="mx-auto text-zinc-400 dark:text-zinc-500 mb-3" />
+                <h3 className="text-lg font-bold text-foreground dark:text-white">Nenhum item nesta lista</h3>
+                <p className="text-xs text-muted dark:text-zinc-400 mt-1 max-w-sm mx-auto">
+                  Você ainda não favoritou módulos. Clique no botão &ldquo;+&rdquo; em qualquer card para adicioná-lo à sua lista.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {filteredModules.map((module) => (
+                  <div key={module.slug}>
+                    {/* Reutiliza o card Netflix */}
+                    <div
+                      onClick={() => setSelectedModule(module)}
+                      className="group cursor-pointer rounded-xl overflow-hidden border border-border dark:border-white/10 bg-surface dark:bg-[#121319] hover:border-atlas-orange/50 transition-all hover:scale-[1.03] shadow-sm"
+                    >
+                      <div className="aspect-[16/9] relative bg-gradient-to-br from-zinc-800 to-black p-4 flex flex-col justify-between">
+                        <div className="flex justify-between items-center">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-black/60 text-white border border-white/10">
+                            Módulo {String(module.number).padStart(2, "0")}
+                          </span>
+                          {progress[module.slug]?.passed && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              Validado
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-atlas-orange font-bold uppercase tracking-wider">
+                            {module.category}
+                          </p>
+                          <h4 className="text-sm font-black text-white font-display line-clamp-1">
+                            {module.title}
+                          </h4>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <p className="text-xs text-muted dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                          {module.shortDescription}
+                        </p>
+                        <div className="mt-4 flex items-center justify-between pt-3 border-t border-border dark:border-white/10 text-xs">
+                          <span className="text-muted dark:text-zinc-500 font-mono">{module.durationMinutes} min</span>
+                          <Link
+                            href={`/trilha/${module.slug}`}
+                            className="text-atlas-orange font-bold hover:underline inline-flex items-center gap-1"
+                          >
+                            Assistir <ArrowRight size={13} />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Visualização Padrão Streaming Netflix */
+          <>
+            {/* Trilho: Continuar Assistindo (se houver) */}
+            {inProgressModules.length > 0 && (
+              <NetflixContentRail
+                title="Continuar Assistindo"
+                subtitle="Retome exatamente de onde parou no seu treinamento"
+                badge="Em Curso"
+                modules={inProgressModules}
+                progress={progress}
+                onOpenDetails={(mod) => setSelectedModule(mod)}
+              />
+            )}
+
+            {/* Trilho: Top 10 mais acessados da AtlasGR (Numeração estilizada Netflix) */}
+            <NetflixContentRail
+              title="Top 10 Treinamentos Mais Acessados"
+              subtitle="Os módulos de maior impacto na operação e na Central"
+              badge="Top 10"
+              modules={top10Modules}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+              variant="top10"
+            />
+
+            {/* Trilho: Fundamentos & Risco */}
+            <NetflixContentRail
+              title="Série: Fundamentos da Logística & PGR"
+              subtitle="Conceitos essenciais de gerenciamento de risco, supply chain e cultura Atlas"
+              modules={fundamentosModules}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+            />
+
+            {/* Trilho: Soluções Tecnológicas AtlasGR */}
+            <NetflixContentRail
+              title="Série: Software, IA & Ecossistema Connect"
+              subtitle="Atlas Connect, Atlas Profile, integrações de sensores e telemetria avançada"
+              badge="Tecnologia"
+              modules={solucoesModules}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+            />
+
+            {/* Trilho: Mercado & Clientes */}
+            <NetflixContentRail
+              title="Série: Inteligência Comercial & Mercado"
+              subtitle="Perfis de embarcadores, transportadoras, prospecção e diferencial competitivo"
+              modules={mercadoModules}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+            />
+
+            {/* Trilho: Excelência Operacional & Casos Reais */}
+            <NetflixContentRail
+              title="Série: Sala de Guerra & Excelência Operacional"
+              subtitle="Procedimentos diários da Central, compliance LGPD, casos reais de sinistro e preparação final"
+              modules={operacaoModules}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+            />
+
+            {/* Vitrine Bento Grid Apple & Samsung */}
+            <AppleBentoShowcase />
+          </>
+        )}
+      </main>
+
+      {/* Modal de Detalhes Cinematográfico */}
+      <ModuleDetailModal
+        meta={selectedModule}
+        onClose={() => setSelectedModule(null)}
+      />
     </div>
   );
 }

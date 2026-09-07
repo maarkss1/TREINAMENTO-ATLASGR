@@ -14,6 +14,7 @@ import {
   Scale,
 } from "lucide-react";
 import type { ContentBlock } from "@/lib/types";
+import { BASE_PATH } from "@/lib/basePath";
 import { RichParagraph } from "./RichText";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/Accordion";
 import { AudioLesson, VideoLesson } from "@/components/media/LessonMedia";
@@ -312,7 +313,8 @@ export function ContentBlockView({ block, index = 0 }: { block: ContentBlock; in
         </motion.blockquote>
       );
 
-    case "image":
+    case "image": {
+      const imageSrc = block.url.startsWith("/") ? `${BASE_PATH}${block.url}` : block.url;
       return (
         <motion.figure
           initial={{ opacity: 0, scale: 0.96 }}
@@ -322,7 +324,12 @@ export function ContentBlockView({ block, index = 0 }: { block: ContentBlock; in
           className="atlas-image-card overflow-hidden rounded-3xl border border-border bg-surface shadow-lg"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={block.url} alt={block.alt || block.caption || "Imagem educacional do módulo"} className="aspect-[16/8] w-full object-cover" loading="lazy" />
+          <img
+            src={imageSrc}
+            alt={block.alt || block.caption || "Imagem educacional do módulo"}
+            className="w-full h-auto max-h-[580px] object-contain bg-zinc-950/40 mx-auto"
+            loading="lazy"
+          />
           {(block.caption || block.credit) && (
             <figcaption className="border-t border-border p-4 sm:p-5">
               {block.caption && <p className="text-sm font-semibold leading-relaxed text-foreground">{block.caption}</p>}
@@ -331,6 +338,7 @@ export function ContentBlockView({ block, index = 0 }: { block: ContentBlock; in
           )}
         </motion.figure>
       );
+    }
 
     case "video":
       return (

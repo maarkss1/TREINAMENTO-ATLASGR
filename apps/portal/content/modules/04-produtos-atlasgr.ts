@@ -26,8 +26,8 @@ export const module04: ModuleContentFull = {
       blocks: [
         {
           type: "image",
-          url: "/brand/module_banner.jpg",
-          caption: "Imagem descritiva"
+          url: "/brand/screenshots/newconnect-dashboard.png",
+          caption: "Cockpit Operacional Atlas NewConnect: Painel em tempo real da Torre de Controle, Fila de Alertas prioritária IA e Grade de Viagens."
         },
         {
           type: "text",
@@ -71,6 +71,11 @@ export const module04: ModuleContentFull = {
           ],
         },
         {
+          type: "image",
+          url: "/brand/screenshots/perfil-securitario.png",
+          caption: "Tela de Registros Recentes (recentRecords) do Atlas Profile: Varredura em 40+ tribunais, validação FaceID com liveness e proteção integral à LGPD."
+        },
+        {
           type: "checklist",
           title: "Dimensões Auditadas pelo Profile",
           items: [
@@ -97,6 +102,11 @@ export const module04: ModuleContentFull = {
               " (Fator Tático Humano).",
             ],
           ],
+        },
+        {
+          type: "image",
+          url: "/brand/screenshots/portalatlas-sm.png",
+          caption: "Portal Atlas Core (Atlas_Principal.php): Gestão paramétrica de SM, regras de PGR, vínculo de tecnologias de rastreamento e contingência operacional."
         },
         {
           type: "comparison",

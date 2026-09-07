@@ -2,14 +2,14 @@
 @config "../tailwind.config.ts";
 @import "./module-content.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #fcfcfc;
   --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --foreground: #111111;
-  --muted: #4b5563;
+  --surface-2: #f4f4f6;
+  --foreground: #09090b;
+  --muted: #52525b;
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: rgba(255, 86, 24, 0.45);
@@ -254,10 +254,86 @@ body {
   animation: revealUp 0.2s var(--ease-premium) both;
 }
 
-/* ── Glow shadow utilitário ─────────────────────────────────── */
 @layer utilities {
   .shadow-glow {
     box-shadow: 0 4px 14px -3px rgba(255, 86, 24, 0.4), 0 0 0 1px rgba(255, 86, 24, 0.1);
   }
+
+  /* No Scrollbar Utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Apple Frosted Glass — Default Light, Dark Override */
+  .glass-apple {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  :where(.dark, .dark *) .glass-apple {
+    background: rgba(18, 18, 22, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Netflix Cinema Dark Glass */
+  .glass-netflix {
+    background: rgba(244, 244, 246, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  :where(.dark, .dark *) .glass-netflix {
+    background: linear-gradient(180deg, rgba(20, 20, 26, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Apple Titanium Gradient */
+  .text-gradient-titanium {
+    background: linear-gradient(180deg, #18181b 0%, #3f3f46 50%, #71717a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  :where(.dark, .dark *) .text-gradient-titanium {
+    background: linear-gradient(180deg, #FFFFFF 0%, #D4D4D8 45%, #71717A 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Samsung Dynamic AMOLED Gradient */
+  .text-gradient-samsung {
+    background: linear-gradient(135deg, #FF6B10 0%, #FF9F1C 35%, #F7B733 70%, #111111 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  :where(.dark, .dark *) .text-gradient-samsung {
+    background: linear-gradient(135deg, #FF6B10 0%, #FF9F1C 35%, #F7B733 70%, #FFFFFF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Netflix Card Glow */
+  .shadow-netflix {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 15px -3px rgba(255, 86, 24, 0.15);
+  }
+
+  :where(.dark, .dark *) .shadow-netflix {
+    box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(255, 86, 24, 0.25);
+  }
 }
+
 

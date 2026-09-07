@@ -1,22 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, Rocket } from "lucide-react";
+import { Menu, X, Rocket, Search, Bookmark, Sparkles } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useOnboardingStore } from "@/lib/store";
 import { levelProgress } from "@/lib/gamification";
 import { cn } from "@/lib/utils";
 import { PushNotificationsPanel } from "@/components/innovation/PushNotificationsPanel";
+import { SpotlightSearchModal } from "@/components/streaming/SpotlightSearchModal";
+import { ModuleDetailModal } from "@/components/streaming/ModuleDetailModal";
+import type { ModuleMeta } from "@/lib/types";
 
 const links = [
-  { href: "/trilha", label: "Missões & Módulos" },
+  { href: "/", label: "Início" },
+  { href: "/trilha", label: "Trilhas & Módulos" },
   { href: "/produtos", label: "Produtos" },
-  { href: "/glossario", label: "Glossário" },
+  { href: "/shorts", label: "Shorts" },
   { href: "/dashboard", label: "Cockpit" },
   { href: "/ranking", label: "Ranking" },
+  { href: "/glossario", label: "Glossário" },
   { href: "/certificado", label: "Certificado" },
 ];
 
@@ -25,12 +30,17 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [selectedModule, setSelectedModule] = useState<ModuleMeta | null>(null);
+
   const lastScrollY = useRef(0);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   const registration = useOnboardingStore((s) => s.registration);
   const xp = useOnboardingStore((s) => s.xp);
+  const myList = useOnboardingStore((s) => s.myList || []);
 
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
@@ -39,7 +49,7 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 20);
 
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 120) {
         setHidden(true); // scrolling down
         setMenuOpen(false); // auto close menu on scroll down
       } else {
@@ -70,122 +80,173 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
 
   const { current } = levelProgress(xp);
 
-  const shouldHideLinks = hideNavLinks || pathname === "/";
-
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
-        scrolled
-          ? "border-b border-border/50 bg-background/80 backdrop-blur-xl shadow-sm py-2"
-          : "bg-transparent py-4 border-b border-transparent",
-        hidden ? "-translate-y-full" : "translate-y-0"
-      )}
-    >
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
-        <Link href="/" className="group flex items-center gap-2">
-          <div className="transition-transform duration-300 group-hover:scale-105">
-            <Logo />
-          </div>
-        </Link>
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 transition-all duration-300",
+          scrolled
+            ? "border-b border-border dark:border-white/10 bg-background/85 dark:bg-black/85 backdrop-blur-2xl shadow-md dark:shadow-xl py-2.5"
+            : "bg-gradient-to-b from-background/90 via-background/40 to-transparent dark:from-black/90 dark:via-black/50 dark:to-transparent py-4 border-b border-transparent",
+          hidden ? "-translate-y-full" : "translate-y-0"
+        )}
+      >
+        <div className="mx-auto flex h-14 max-w-[1700px] items-center justify-between px-6 sm:px-10 lg:px-14">
+          {/* Logo Brand */}
+          <Link href="/" className="group flex items-center gap-2">
+            <div className="transition-transform duration-300 group-hover:scale-105">
+              <Logo />
+            </div>
+          </Link>
 
-        {!shouldHideLinks && (
-          <nav aria-label="Navegação principal" className="hidden items-center gap-8 md:flex absolute left-1/2 -translate-x-1/2">
+          {/* Navigation Links (Netflix & Apple Style) */}
+          {!hideNavLinks && (
+            <nav
+              aria-label="Navegação principal"
+              className="hidden items-center gap-6 lg:flex"
+            >
+              {links.map((l) => {
+                const isActive = l.href === "/" ? pathname === "/" : pathname?.startsWith(l.href);
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "text-xs sm:text-sm font-semibold transition-all relative py-1.5 focus-visible-ring rounded-sm",
+                      isActive
+                        ? "text-foreground font-bold dark:text-white"
+                        : "text-muted hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
+                    )}
+                  >
+                    {l.label}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-atlas-orange rounded-full shadow-[0_0_8px_#FF5618]" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+
+          {/* Utility Right Bar */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Search Trigger (Spotlight) */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-zinc-200 text-foreground dark:bg-white/10 dark:hover:bg-white/20 dark:text-zinc-300 dark:hover:text-white text-xs font-medium border border-border dark:border-white/15 backdrop-blur-md transition-all"
+              aria-label="Abrir busca"
+            >
+              <Search size={14} />
+              <span className="hidden md:inline">Buscar</span>
+              <kbd className="hidden md:inline text-[9px] font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-black/40 text-muted dark:text-zinc-400 border border-border dark:border-white/10">
+                ⌘K
+              </kbd>
+            </button>
+
+            {/* My List Shortcut */}
+            {myList.length > 0 && (
+              <Link
+                href="/trilha?filter=mylist"
+                className="relative hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-zinc-200 text-foreground dark:bg-white/10 dark:hover:bg-white/20 dark:text-zinc-300 dark:hover:text-white text-xs font-semibold border border-border dark:border-white/15 transition-all"
+                title="Ver Minha Lista"
+              >
+                <Bookmark size={13} className="text-atlas-orange" />
+                <span>Minha Lista</span>
+                <span className="w-4 h-4 rounded-full bg-atlas-orange text-white text-[9px] font-mono font-bold flex items-center justify-center">
+                  {myList.length}
+                </span>
+              </Link>
+            )}
+
+            {/* Notifications */}
+            <PushNotificationsPanel />
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {/* User Profile Avatar with XP ring */}
+            {mounted && registration && (() => {
+              return (
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2.5 pl-2 pr-3 py-1 rounded-full bg-surface-2 border border-border hover:border-atlas-orange/50 dark:bg-white/10 dark:border-white/15 transition-all group"
+                >
+                  <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-atlas-orange/20 border border-atlas-orange font-display font-black text-xs text-atlas-orange">
+                    {registration.nomeCompleto.charAt(0)}
+                    <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-background dark:bg-black text-[8px] font-black text-atlas-orange border border-atlas-orange">
+                      {current.level}
+                    </div>
+                  </div>
+                  <div className="hidden xl:flex flex-col text-left leading-none">
+                    <span className="text-[10px] font-bold text-muted uppercase tracking-wider group-hover:text-atlas-orange transition-colors">
+                      {registration.nomeCompleto.split(" ")[0]}
+                    </span>
+                    <span className="text-xs font-black text-foreground dark:text-white mt-1">
+                      {xp} <span className="text-[10px] font-normal text-muted">XP</span>
+                    </span>
+                  </div>
+                </Link>
+              );
+            })()}
+
+            {/* Mobile Menu Button */}
+            <button
+              ref={menuButtonRef}
+              className="p-2 lg:hidden rounded-lg bg-surface-2 border border-border text-foreground dark:bg-white/10 dark:border-white/15 dark:text-white hover:bg-zinc-200 dark:hover:bg-white/20 focus-visible-ring"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+            >
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Drawer */}
+        {menuOpen && (
+          <nav
+            id="mobile-nav"
+            aria-label="Navegação mobile"
+            className="flex flex-col gap-2 border-t border-border bg-background/95 dark:border-white/10 dark:bg-black/95 backdrop-blur-2xl px-6 py-5 lg:hidden absolute w-full shadow-2xl reveal-up"
+          >
             {links.map((l) => {
-              const isActive = pathname === l.href || pathname?.startsWith(`${l.href}/`);
+              const isActive = l.href === "/" ? pathname === "/" : pathname?.startsWith(l.href);
               return (
                 <Link
                   key={l.href}
                   href={l.href}
                   aria-current={isActive ? "page" : undefined}
+                  onClick={() => setMenuOpen(false)}
                   className={cn(
-                    "text-sm font-semibold transition-all relative group py-2 focus-visible-ring rounded-sm",
-                    isActive ? "text-foreground" : "text-muted hover:text-foreground"
+                    "rounded-xl px-4 py-3 text-sm font-bold transition flex items-center justify-between group focus-visible-ring",
+                    isActive
+                      ? "bg-atlas-orange/20 text-atlas-orange border border-atlas-orange/30"
+                      : "text-foreground hover:bg-surface-2 dark:text-zinc-300 dark:hover:bg-white/10 dark:hover:text-white"
                   )}
                 >
                   {l.label}
-                  <span
-                    className={cn(
-                      "absolute bottom-0 left-0 w-full h-[2px] bg-atlas-orange scale-x-0 transition-transform origin-left duration-300 rounded-full group-hover:scale-x-100",
-                      isActive && "scale-x-100"
-                    )}
-                  />
+                  <Rocket size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
               );
             })}
           </nav>
         )}
+      </header>
 
-        <div className="flex items-center gap-4">
-          {mounted && registration && (() => {
-            const getTierColor = (level: number) => {
-              if (level === 1) return "border-[#CD7F32] from-[#CD7F32]/20 to-transparent"; // Bronze
-              if (level === 2) return "border-[#C0C0C0] from-[#C0C0C0]/20 to-transparent"; // Silver
-              if (level === 3) return "border-[#FFD700] from-[#FFD700]/20 to-transparent"; // Gold
-              if (level === 4) return "border-[#b9f2ff] from-[#b9f2ff]/20 to-transparent"; // Platinum
-              return "border-atlas-orange from-atlas-orange/20 to-transparent"; // Holographic
-            };
-            const tierStyle = getTierColor(current.level);
-            
-            return (
-              <Link href="/profile" className="hidden sm:flex items-center gap-3 px-2 py-1.5 rounded-full bg-surface-2 border border-border/50 hover:bg-surface transition-colors group">
-                <div className={`relative flex h-8 w-8 items-center justify-center rounded-full border-2 bg-gradient-to-br bg-background font-display font-bold text-xs uppercase ${tierStyle}`}>
-                  {registration.nomeCompleto.charAt(0)}
-                  <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-atlas-graphite text-[8px] font-black text-white shadow-sm ring-1 ring-border">
-                    {current.level}
-                  </div>
-                </div>
-                <div className="flex flex-col pr-3">
-                  <span className="text-[10px] font-bold text-muted uppercase leading-none tracking-widest group-hover:text-atlas-orange transition-colors">{current.title}</span>
-                  <span className="text-xs font-bold leading-none mt-1">{xp} <span className="font-normal text-muted">XP</span></span>
-                </div>
-              </Link>
-            );
-          })()}
+      {/* Global Spotlight Search Modal */}
+      <SpotlightSearchModal
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelectModule={(mod) => setSelectedModule(mod)}
+      />
 
-          <div className="w-px h-6 bg-border/50 hidden sm:block mx-2" />
-
-          <PushNotificationsPanel />
-          <ThemeToggle />
-          <button
-            ref={menuButtonRef}
-            className="p-2 md:hidden rounded-md bg-surface-2 border border-border/50 text-muted hover:text-foreground focus-visible-ring"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-          >
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-      </div>
-
-      {menuOpen && (
-        <nav
-          id="mobile-nav"
-          aria-label="Navegação mobile"
-          className="flex flex-col gap-2 border-t border-border/50 bg-surface/95 backdrop-blur-md px-6 py-4 md:hidden absolute w-full shadow-xl reveal-up"
-        >
-          {links.map((l) => {
-            const isActive = pathname === l.href || pathname?.startsWith(`${l.href}/`);
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                aria-current={isActive ? "page" : undefined}
-                onClick={() => setMenuOpen(false)}
-                className={cn(
-                  "rounded-xl px-4 py-3 text-sm font-bold transition flex items-center justify-between group focus-visible-ring",
-                  isActive ? "bg-atlas-orange/10 text-atlas-orange" : "text-muted hover:bg-atlas-orange/10 hover:text-atlas-orange"
-                )}
-              >
-                {l.label}
-                <Rocket size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-            );
-          })}
-        </nav>
-      )}
-    </header>
+      {/* Global Module Detail Modal */}
+      <ModuleDetailModal
+        meta={selectedModule}
+        onClose={() => setSelectedModule(null)}
+      />
+    </>
   );
 }

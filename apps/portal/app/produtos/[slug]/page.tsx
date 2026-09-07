@@ -7,6 +7,7 @@ import RepresentatividadeEventos from "@/components/charts/RepresentatividadeEve
 import TempoEmAlvosTable from "@/components/charts/TempoEmAlvosTable";
 import GlossaryTooltip from "@/components/ui/GlossaryTooltip";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { BASE_PATH } from "@/lib/basePath";
 import type { Metadata } from "next";
 
 const PRODUCT_SLUGS = ["profile", "connect", "gr", "analytics"];
@@ -100,6 +101,27 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
               <div className="lg:w-1/2 flex justify-center">
                 <TerminalWindow />
               </div>
+
+              {/* Visão Real da Plataforma */}
+              <div className="w-full mt-16 flex flex-col items-center">
+                <div className="text-center max-w-3xl mb-8">
+                  <span className="text-xs font-bold uppercase tracking-widest text-atlas-orange bg-atlas-orange/10 px-3 py-1 rounded-full border border-atlas-orange/20">
+                    Visão Real da Plataforma
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold mt-3 mb-2">Tela de Registros Recentes (recentRecords)</h3>
+                  <p className="text-gray-400 text-sm">
+                    Ambiente operacional do Atlas Profile: varredura em 40+ tribunais e órgãos oficiais, biometria FaceID e status de risco com anonimização em conformidade com a LGPD.
+                  </p>
+                </div>
+                <div className="w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-zinc-950/60">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${BASE_PATH}/brand/screenshots/perfil-securitario.png`}
+                    alt="Tela de Registros Recentes do Atlas Profile"
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
@@ -114,6 +136,46 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
                 </GlossaryTooltip>
               </div>
               <ArchitectureFlow />
+
+              {/* Visão Real das Plataformas NewConnect & Portal Atlas */}
+              <div className="w-full mt-20 flex flex-col items-center">
+                <div className="text-center max-w-3xl mb-8">
+                  <span className="text-xs font-bold uppercase tracking-widest text-atlas-orange bg-atlas-orange/10 px-3 py-1 rounded-full border border-atlas-orange/20">
+                    Visão Real das Plataformas
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold mt-3 mb-2">NewConnect & Portal Atlas em Operação</h3>
+                  <p className="text-gray-400 text-sm">
+                    O ecossistema dual da AtlasGR: a Torre de Controle moderna do NewConnect com Fila de Alertas prioritária IA (P1 a P7) e o Portal Atlas Core para parametrização de SM, rastreadores e regras do PGR.
+                  </p>
+                </div>
+                <div className="w-full max-w-5xl space-y-8">
+                  <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-zinc-950/60">
+                    <div className="px-5 py-3 border-b border-white/10 bg-white/5 flex items-center justify-between">
+                      <span className="text-xs font-bold text-zinc-300">Atlas NewConnect — Torre de Controle & Fila de Alertas Tática</span>
+                      <span className="text-[11px] font-mono text-emerald-400 font-bold">● Online em Tempo Real</span>
+                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${BASE_PATH}/brand/screenshots/newconnect-dashboard.png`}
+                      alt="Atlas NewConnect Dashboard"
+                      className="w-full h-auto"
+                    />
+                  </div>
+
+                  <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-zinc-950/60">
+                    <div className="px-5 py-3 border-b border-white/10 bg-white/5 flex items-center justify-between">
+                      <span className="text-xs font-bold text-zinc-300">Portal Atlas Core — Emissão de SM, Tecnologias de Rastreamento & PGR</span>
+                      <span className="text-[11px] font-mono text-amber-400 font-bold">● Motor Paramétrico</span>
+                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${BASE_PATH}/brand/screenshots/portalatlas-sm.png`}
+                      alt="Portal Atlas Core SM"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
