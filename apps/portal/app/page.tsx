@@ -20,6 +20,7 @@ import { NetflixHeroBillboard } from "@/components/streaming/NetflixHeroBillboar
 import { NetflixContentRail } from "@/components/streaming/NetflixContentRail";
 import { ModuleDetailModal } from "@/components/streaming/ModuleDetailModal";
 import { AppleBentoShowcase } from "@/components/streaming/AppleBentoShowcase";
+import { GamificationBar } from "@/components/gamification/GamificationBar";
 import { moduleMetas } from "@/content/modules";
 import { useOnboardingStore } from "@/lib/store";
 import type { ModuleMeta } from "@/lib/types";
@@ -80,11 +81,6 @@ export default function HomePage() {
       return p && (!p.passed || (p.attempts && p.attempts > 0));
     });
   }, [progress]);
-
-  // Trilho: Top 10 mais relevantes
-  const top10Modules = useMemo(() => {
-    return moduleMetas.slice(0, 10);
-  }, []);
 
   // Filtro de categorias
   const filteredModules = useMemo(() => {
@@ -153,8 +149,13 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Barra de Progresso & Gamificação */}
+      <div className="mx-auto max-w-[1700px] px-6 sm:px-10 lg:px-14 pt-6">
+        <GamificationBar variant="full" />
+      </div>
+
       {/* Conteúdo em Trilhos (Netflix Rails) ou Filtrado */}
-      <main className="space-y-6 pt-4">
+      <main className="space-y-6 pt-2">
         {selectedFilter !== "all" ? (
           /* Visualização de Categoria Filtrada */
           <div className="mx-auto max-w-[1700px] px-6 sm:px-10 lg:px-14 py-8">
@@ -238,17 +239,6 @@ export default function HomePage() {
                 onOpenDetails={(mod) => setSelectedModule(mod)}
               />
             )}
-
-            {/* Trilho: Top 10 mais acessados da AtlasGR (Numeração estilizada Netflix) */}
-            <NetflixContentRail
-              title="Top 10 Treinamentos Mais Acessados"
-              subtitle="Os módulos de maior impacto na operação e na Central"
-              badge="Top 10"
-              modules={top10Modules}
-              progress={progress}
-              onOpenDetails={(mod) => setSelectedModule(mod)}
-              variant="top10"
-            />
 
             {/* Trilho: Fundamentos & Risco */}
             <NetflixContentRail

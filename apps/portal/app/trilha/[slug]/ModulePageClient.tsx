@@ -35,6 +35,8 @@ import { CertificateActions } from "@/components/module/CertificateActions";
 import type { ContentBlock, ModuleContentFull, ModuleSection, ModuleMeta, QuizQuestionClient } from "@/lib/types";
 import { AccessibilityToolbar } from "@/components/accessibility/AccessibilityToolbar";
 import { ModuleTitle } from "@/components/brand/ModuleTitle";
+import { ModuleCelebrationModal } from "@/components/gamification/ModuleCelebrationModal";
+import { GamificationBar } from "@/components/gamification/GamificationBar";
 
 type Screen =
   | { kind: "cover" }
@@ -121,6 +123,7 @@ export function ModulePageClient() {
   const progress = useOnboardingStore((state) => state.progress);
   const completeModuleQuiz = useOnboardingStore((state) => state.completeModuleQuiz);
   const [showQuiz, setShowQuiz] = useState(false);
+  const [celebrationOpen, setCelebrationOpen] = useState(false);
   const [screenIndex, setScreenIndex] = useState(0);
   const [isFocusMode, setIsFocusMode] = useState(false);
 
@@ -390,8 +393,8 @@ export function ModulePageClient() {
                           });
                           const data = await res.json();
                           completeModuleQuiz(params.slug, data.score);
-                          if (data.passed && nextReady) {
-                            setTimeout(() => router.push(`/trilha/${nextReady.slug}`), 5000);
+                          if (data.passed) {
+                            setCelebrationOpen(true);
                           }
                           return data;
                         }}
@@ -419,6 +422,17 @@ export function ModulePageClient() {
           )}
         </motion.div>
       </main>
+
+      {/* Modal Gamificado de Celebração de Conclusão de Módulo */}
+      <ModuleCelebrationModal
+        isOpen={celebrationOpen}
+        onClose={() => setCelebrationOpen(false)}
+        moduleTitle={content.title}
+        moduleNumber={meta.number}
+        xpGained={100}
+        nextModuleSlug={nextReady?.slug}
+        nextModuleTitle={nextReady?.title}
+      />
 
       {!isFocusMode && (
         <div className="sticky bottom-0 z-30 border-t border-border/50 bg-background/90 backdrop-blur-xl print:hidden">

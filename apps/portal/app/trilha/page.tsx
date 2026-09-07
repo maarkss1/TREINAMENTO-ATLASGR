@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
+import { CourseMediaHero } from "@/components/media/CourseMediaHero";
+import { GamificationBar } from "@/components/gamification/GamificationBar";
 import type { ModuleMeta } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -166,6 +168,16 @@ function TrilhaContent() {
           </div>
         </div>
       </section>
+
+      {/* Gamificação & Progresso Geral da Trilha */}
+      <div className="mx-auto max-w-[1700px] px-6 sm:px-10 lg:px-14 pt-8">
+        <GamificationBar variant="full" />
+      </div>
+
+      {/* Central de Mídia: Apresentação do Curso ("O que você vai aprender") + Vídeo Institucional AtlasGR */}
+      <div className="mx-auto max-w-[1700px] px-6 sm:px-10 lg:px-14 pt-8">
+        <CourseMediaHero />
+      </div>
 
       {/* Controles de Visualização: Modo Netflix Rails vs Modo Grade Bento Apple */}
       <div className="mx-auto max-w-[1700px] px-6 sm:px-10 lg:px-14 pt-8 pb-4 flex flex-wrap items-center justify-between gap-4 border-b border-border dark:border-white/5">

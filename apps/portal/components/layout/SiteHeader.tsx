@@ -165,12 +165,14 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* User Profile Avatar with XP ring */}
+            {/* User Profile Avatar with XP ring & Level Progress */}
             {mounted && registration && (() => {
+              const { pct: levelPct } = levelProgress(xp);
               return (
                 <Link
                   href="/profile"
                   className="flex items-center gap-2.5 pl-2 pr-3 py-1 rounded-full bg-surface-2 border border-border hover:border-atlas-orange/50 dark:bg-white/10 dark:border-white/15 transition-all group"
+                  title={`Nível ${current.level}: ${current.title} (${xp} XP)`}
                 >
                   <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-atlas-orange/20 border border-atlas-orange font-display font-black text-xs text-atlas-orange">
                     {registration.nomeCompleto.charAt(0)}
@@ -180,11 +182,19 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
                   </div>
                   <div className="hidden xl:flex flex-col text-left leading-none">
                     <span className="text-[10px] font-bold text-muted uppercase tracking-wider group-hover:text-atlas-orange transition-colors">
-                      {registration.nomeCompleto.split(" ")[0]}
+                      {registration.nomeCompleto.split(" ")[0]} • {current.title}
                     </span>
-                    <span className="text-xs font-black text-foreground dark:text-white mt-1">
-                      {xp} <span className="text-[10px] font-normal text-muted">XP</span>
-                    </span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-xs font-black text-foreground dark:text-white">
+                        {xp} <span className="text-[10px] font-normal text-muted">XP</span>
+                      </span>
+                      <div className="w-12 h-1.5 rounded-full bg-border dark:bg-white/20 overflow-hidden">
+                        <div
+                          className="h-full bg-atlas-orange rounded-full"
+                          style={{ width: `${levelPct}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </Link>
               );
