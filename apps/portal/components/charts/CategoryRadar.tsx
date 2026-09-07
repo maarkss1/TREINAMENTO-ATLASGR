@@ -48,7 +48,7 @@ export function CategoryRadar({ data }: CategoryRadarProps) {
           <Tooltip 
             contentStyle={{ backgroundColor: 'var(--surface-2)', borderColor: 'var(--border)', borderRadius: '8px', fontSize: '12px' }}
             itemStyle={{ color: 'var(--atlas-orange)', fontWeight: 'bold' }}
-            formatter={(value: any) => [`${value}%`, 'Domínio']}
+            formatter={(value: unknown) => [`${value}%`, 'Domínio']}
           />
           <Radar
             name="Domínio"

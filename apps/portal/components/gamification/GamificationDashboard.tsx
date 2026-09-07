@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 
 export function GamificationDashboard() {
   const { xp: localXp, streakDays: localStreakDays, registration } = useOnboardingStore();
-  const userId = (registration as any)?.userId;
+  const userId = ((registration as unknown as Record<string, unknown>)?.userId as string | undefined);
 
   const [realProfile, setRealProfile] = useState<{ xp: number; currentStreak: number } | null>(null);
 

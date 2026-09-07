@@ -117,8 +117,8 @@ export function AccessibilityToolbar({ currentText }: AccessibilityToolbarProps)
       script.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
       script.async = true;
       script.onload = () => {
-        if ((window as any).VLibras) {
-          new (window as any).VLibras.Widget("https://vlibras.gov.br/app");
+        if ((window as unknown as { VLibras: { Widget: new (url: string) => void } }).VLibras) {
+          new (window as unknown as { VLibras: { Widget: new (url: string) => void } }).VLibras.Widget("https://vlibras.gov.br/app");
         }
       };
       document.body.appendChild(script);
