@@ -107,8 +107,8 @@ export function XPNotifier() {
                     left: "50%",
                   }}
                   animate={{
-                    x: [0, (Math.random() - 0.5) * 300],
-                    y: [0, (Math.random() - 0.5) * 300],
+                    x: [0, (i - 6) * 25],
+                    y: [0, (i % 2 === 0 ? -1 : 1) * 100],
                     opacity: [1, 0],
                     scale: [1, 0.3],
                   }}

@@ -24,7 +24,7 @@ import { PracticeLab } from "@/components/module/PracticeLab";
 import { QuizRunner } from "@/components/quiz/QuizRunner";
 import { moduleMetas, getModuleMeta, getModuleContent } from "@/content/modules";
 import { getPracticeLab } from "@/content/learning-blueprint";
-import { getQuizForModule } from "@/content/quizzes-v2";
+import {  } from "@/content/quizzes-v2";
 import { useOnboardingStore } from "@/lib/store";
 import { useRequireRegistration } from "@/lib/useRequireRegistration";
 import { ImmersiveStory } from "@/components/module/ImmersiveStory";
@@ -382,7 +382,7 @@ export function ModulePageClient() {
                         questions={quiz}
                         title={`Simulador — ${content.title}`}
                         onSubmit={async (answers) => {
-                          const userId = (registration as any)?.userId || (registration as any)?.id;
+                          const userId = ((registration as unknown as Record<string, unknown>)?.userId || (registration as unknown as Record<string, unknown>)?.id) as string | undefined;
                           const res = await fetch(`http://localhost:3001/quiz/${params.slug}/submit`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },

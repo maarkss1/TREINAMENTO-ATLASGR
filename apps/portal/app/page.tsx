@@ -2,16 +2,16 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import {
-  Sparkles,
-  Trophy,
-  Compass,
-  Play,
+
+
+
+
   Bookmark,
-  CheckCircle2,
-  TrendingUp,
-  Layers,
+
+
+
   ArrowRight,
   Tv,
 } from "lucide-react";
@@ -26,7 +26,7 @@ import type { ModuleMeta } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [selectedModule, setSelectedModule] = useState<ModuleMeta | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
 

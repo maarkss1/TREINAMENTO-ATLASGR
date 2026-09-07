@@ -140,7 +140,7 @@ export default function ProvaFinalPage() {
               timeLimitSeconds={FINAL_EXAM_SECONDS}
               passThreshold={FINAL_EXAM_PASS_SCORE}
               onSubmit={async (answers) => {
-                const userId = (registration as any)?.userId || (registration as any)?.id;
+                const userId = ((registration as unknown as Record<string, unknown>)?.userId || (registration as unknown as Record<string, unknown>)?.id) as string | undefined;
                 const res = await fetch(`http://localhost:3001/quiz/final-exam/submit`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },

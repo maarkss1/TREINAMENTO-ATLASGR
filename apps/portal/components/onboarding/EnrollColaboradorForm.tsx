@@ -78,8 +78,8 @@ export function EnrollColaboradorForm({ onEnrolled }: { onEnrolled?: () => void 
       onEnrolled?.();
       setForm(emptyForm);
       setSubmitted(false);
-    } catch (err: any) {
-      setErrorMsg(err.message ?? "Erro inesperado. Tente novamente.");
+    } catch (err: unknown) {
+      setErrorMsg((err as Error).message ?? "Erro inesperado. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }

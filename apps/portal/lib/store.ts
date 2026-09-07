@@ -108,7 +108,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         // Registrar a sessão real no banco
         fetch(`http://localhost:3001/gamification/${id}/session`, { method: 'POST' }).catch(() => {});
 
-        set({ registration: {...registrationData, userId: id } as any });
+        set({ registration: {...registrationData, userId: id } as unknown as RegistrationData });
         get().touchStreak();
         get().addBadge("primeiro-passo");
         return true;
@@ -144,7 +144,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         
         // Sincronizar com o backend NestJS para garantir imutabilidade e persistência real
         // registration.userId should be populated in startSessionAs
-        const userId = (get().registration as any)?.userId;
+         // const userId = ((get().registration as unknown as Record<string, unknown>)?.userId as string | undefined);
         // O fetch foi removido daqui pois o servidor agora processa a submissão completa do quiz, 
         // e atualiza XP e progresso no banco de dados na rota /quiz/:moduleId/submit.
 

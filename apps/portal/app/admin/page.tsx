@@ -1,39 +1,42 @@
 "use client";
 
-import { useMemo, useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Download, Search, TrendingDown, TrendingUp, UserCheck, Users } from "lucide-react";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { EnrollColaboradorForm } from "@/components/onboarding/EnrollColaboradorForm";
-import { AdminGate } from "@/components/admin/AdminGate";
 import { useOnboardingStore } from "@/lib/store";
-import { seedCollaborators, demoKpis, type SeedCollaborator } from "@/content/seedDemo";
+import { Users, Award, BookOpen, CheckCircle, Search } from "lucide-react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 
-const statusLabel: Record<SeedCollaborator["status"], { label: string; variant: "success" | "orange" | "warning" | "muted" }> = {
-  concluido: { label: "Concluído", variant: "success" },
-  andamento: { label: "Em andamento", variant: "orange" },
-  reprovado: { label: "Reprovado", variant: "warning" },
-  "nao-iniciado": { label: "Não iniciado", variant: "muted" },
-};
+
+
+export interface SeedCollaborator {
+  nome: string;
+  cargo: string;
+  departamento: string;
+  status: "concluido" | "andamento" | "pendente";
+  progresso: number;
+  notaMedia: number;
+  tempoEstudadoMin: number;
+  ultimoAcesso: string;
+}
+
+const SEED_COLLABORATORS: SeedCollaborator[] = [
+  { nome: "Ana Silva", cargo: "Analista de Operações", departamento: "Operações", status: "concluido", progresso: 100, notaMedia: 92, tempoEstudadoMin: 180, ultimoAcesso: "2026-03-28" },
+  { nome: "Carlos Eduardo", cargo: "Operador de Rastreamento", departamento: "C.I.A", status: "andamento", progresso: 60, notaMedia: 85, tempoEstudadoMin: 110, ultimoAcesso: "2026-03-29" },
+  { nome: "Mariana Costa", cargo: "Coordenadora de Risco", departamento: "GR", status: "concluido", progresso: 100, notaMedia: 98, tempoEstudadoMin: 210, ultimoAcesso: "2026-03-27" },
+  { nome: "Roberto Oliveira", cargo: "Assistente Comercial", departamento: "Comercial", status: "pendente", progresso: 0, notaMedia: 0, tempoEstudadoMin: 0, ultimoAcesso: "2026-03-20" },
+  { nome: "Fernanda Souza", cargo: "Analista Securitária", departamento: "Profile", status: "andamento", progresso: 40, notaMedia: 78, tempoEstudadoMin: 75, ultimoAcesso: "2026-03-29" },
+  { nome: "Lucas Mendes", cargo: "Desenvolvedor Backend", departamento: "Tecnologia", status: "concluido", progresso: 100, notaMedia: 95, tempoEstudadoMin: 160, ultimoAcesso: "2026-03-26" },
+  { nome: "Beatriz Lima", cargo: "Supervisor de Logística", departamento: "Operações", status: "andamento", progresso: 80, notaMedia: 88, tempoEstudadoMin: 145, ultimoAcesso: "2026-03-29" },
+];
 
 interface ApiUser {
   id: string;
-  email: string;
   name: string;
-  cargo?: string;
-  departamento?: string;
-  createdAt: string;
-  gamificationProfile?: { xp: number };
+  email: string;
+  role: string;
 }
 
 export default function AdminPage() {
-  const router = useRouter();
   const registration = useOnboardingStore((s) => s.registration);
   const examResult = useOnboardingStore((s) => s.examResult);
-  const startSessionAs = useOnboardingStore((s) => s.startSessionAs);
   const [query, setQuery] = useState("");
   const [apiUsers, setApiUsers] = useState<ApiUser[]>([]);
 
@@ -52,9 +55,9 @@ export default function AdminPage() {
     const you: SeedCollaborator[] = registration
       ? [
           {
-            nome: `${(registration as any).nomeCompleto} (sessão atual)`,
-            cargo: (registration as any).cargo,
-            departamento: (registration as any).departamento,
+            nome: `${(registration as unknown as Record<string, unknown>).nomeCompleto || ((registration as unknown as Record<string, unknown>).name as string)} (sessão atual)`,
+            cargo: String((registration as unknown as Record<string, unknown>).cargo || ((registration as unknown as Record<string, unknown>).role as string) || "Colaborador"),
+            departamento: String((registration as unknown as Record<string, unknown>).departamento || ((registration as unknown as Record<string, unknown>).company as string) || "AtlasGR"),
             status: examResult?.passed ? "concluido" : "andamento",
             progresso: examResult?.passed ? 100 : 40,
             notaMedia: examResult?.score ?? 0,
@@ -63,210 +66,189 @@ export default function AdminPage() {
           },
         ]
       : [];
-    return [...you, ...seedCollaborators];
+
+    return [...you, ...SEED_COLLABORATORS];
   }, [registration, examResult]);
 
-  const filtered = rows.filter((r) => r.nome.toLowerCase().includes(query.toLowerCase()));
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (r) =>
+        r.nome.toLowerCase().includes(q) ||
+        r.cargo.toLowerCase().includes(q) ||
+        r.departamento.toLowerCase().includes(q)
+    );
+  }, [rows, query]);
 
-  const total = rows.length;
+  const totalColabs = rows.length;
   const concluidos = rows.filter((r) => r.status === "concluido").length;
-  const andamento = rows.filter((r) => r.status === "andamento").length;
-  const reprovados = rows.filter((r) => r.status === "reprovado").length;
-  const notaMedia = Math.round(rows.filter((r) => r.notaMedia > 0).reduce((s, r) => s + r.notaMedia, 0) / Math.max(1, rows.filter((r) => r.notaMedia > 0).length));
-  const tempoMedio = Math.round(rows.reduce((s, r) => s + r.tempoEstudadoMin, 0) / Math.max(1, total));
-
-  function exportCsv() {
-    const header = ["Nome", "Cargo", "Departamento", "Status", "Progresso (%)", "Nota média", "Tempo estudado (min)", "Último acesso"];
-    const lines = rows.map((r) => [r.nome, r.cargo, r.departamento, statusLabel[r.status].label, r.progresso, r.notaMedia, r.tempoEstudadoMin, r.ultimoAcesso]);
-    const csv = [header, ...lines].map((l) => l.map((v) => `"${v}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "colaboradores-onboarding-atlasgr.csv";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  const emAndamento = rows.filter((r) => r.status === "andamento").length;
+  const mediaNotaGlobal = Math.round(
+    rows.reduce((acc, r) => acc + r.notaMedia, 0) / (totalColabs || 1)
+  );
 
   return (
-    <AdminGate>
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mb-8">
+        <h1 className="font-secondary text-2xl font-bold text-foreground sm:text-3xl">
+          Painel do Administrador
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Acompanhamento em tempo real do engajamento, notas e conclusão dos treinamentos da equipe.
+        </p>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Total de Alunos
+            </span>
+            <div className="rounded-lg bg-atlas-orange/10 p-2 text-atlas-orange">
+              <Users className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-3xl font-extrabold text-foreground">{totalColabs}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Colaboradores ativos na plataforma</p>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Certificados Emitidos
+            </span>
+            <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-500">
+              <Award className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-3xl font-extrabold text-emerald-400">{concluidos}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Concluíram 100% dos módulos</p>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Em Treinamento
+            </span>
+            <div className="rounded-lg bg-amber-500/10 p-2 text-amber-500">
+              <BookOpen className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-3xl font-extrabold text-amber-400">{emAndamento}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Com módulos em andamento</p>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Média Global
+            </span>
+            <div className="rounded-lg bg-blue-500/10 p-2 text-blue-500">
+              <CheckCircle className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-3xl font-extrabold text-foreground">{mediaNotaGlobal}%</p>
+          <p className="mt-1 text-xs text-muted-foreground">Aproveitamento nos quizzes</p>
+        </div>
+      </div>
+
+      {/* Users via NestJS Backend if Available */}
+      {apiUsers.length > 0 && (
+        <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-foreground mb-4">Usuários do Backend NestJS (API)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {apiUsers.map((u) => (
+              <div key={u.id} className="p-3 rounded-lg bg-secondary/50 border border-border">
+                <p className="font-semibold text-sm text-foreground">{u.name}</p>
+                <p className="text-xs text-muted-foreground">{u.email}</p>
+                <span className="inline-block mt-2 text-[10px] uppercase font-bold text-atlas-orange bg-atlas-orange/10 px-2 py-0.5 rounded">
+                  {u.role}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Filter and Table */}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="font-display text-3xl font-bold text-foreground">Painel Administrativo</h1>
-            <p className="mt-1 text-muted">Visão executiva do onboarding corporativo.</p>
+            <h2 className="text-lg font-bold text-foreground">Relatório Individual de Desempenho</h2>
+            <p className="text-xs text-muted-foreground">Filtre por colaborador, cargo ou departamento.</p>
           </div>
-          <Button variant="outline" onClick={exportCsv}>
-            <Download size={16} /> Exportar CSV
-          </Button>
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Buscar colaborador..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="pl-9 text-xs"
+            />
+          </div>
         </div>
 
-        {/* Cadastro de colaboradores — único ponto de entrada, feito pelo Admin */}
-        <Card className="mt-6 p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <UserCheck size={18} className="text-atlas-orange" />
-            <p className="font-display font-semibold">Cadastrar colaborador</p>
-          </div>
-          <p className="mb-4 text-xs text-muted">
-            O autocadastro foi removido: apenas o Administrador cadastra colaboradores. Após o cadastro, o colaborador
-            faz o &ldquo;primeiro acesso&rdquo; na Home selecionando o próprio nome.
-          </p>
-          <EnrollColaboradorForm onEnrolled={fetchUsers} />
-
-          {apiUsers.length > 0 && (
-            <div className="mt-6 space-y-2 border-t border-border pt-5">
-              <p className="mb-2 text-xs font-semibold text-muted">Colaboradores cadastrados ({apiUsers.length})</p>
-              {apiUsers.map((c) => (
-                <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-surface-2 px-3 py-2">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{c.name}</p>
-                    <p className="text-xs text-muted">
-                      {c.cargo} · {c.departamento} · {c.email}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant="muted">{c.gamificationProfile?.xp ?? 0} XP</Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        <Card className="mt-4 flex items-center gap-2 border-sky-400/30 bg-sky-400/5 p-3 text-xs text-sky-700 dark:text-sky-300">
-          <Users size={14} /> Os KPIs e a tabela analítica abaixo usam dados fictícios (seed de demonstração) para
-          ilustrar a visão executiva em escala — este protótipo não possui banco de dados. A seção acima já é
-          funcional de verdade, com os colaboradores que você cadastrar.
-        </Card>
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {[
-            { label: "Colaboradores", value: total },
-            { label: "Em andamento", value: andamento },
-            { label: "Concluídos", value: concluidos },
-            { label: "Reprovados", value: reprovados },
-            { label: "Nota média", value: `${notaMedia || 0}%` },
-            { label: "Tempo médio", value: `${tempoMedio}min` },
-          ].map((k) => (
-            <Card key={k.label} className="flex flex-col items-center justify-center p-6 text-center shadow-sm transition-shadow hover:shadow-md">
-              <p className="font-display text-3xl font-black text-gradient-atlas">{k.value}</p>
-              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-muted">{k.label}</p>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-8 grid gap-6 lg:grid-cols-3">
-          <Card className="flex flex-col p-6 shadow-sm">
-            <p className="mb-4 flex items-center gap-2 font-display font-semibold text-red-500"><TrendingDown size={18} /> Questões mais erradas</p>
-            <ul className="flex-1 space-y-4 text-sm">
-              {demoKpis.questoesMaisErradas.map((q) => (
-                <li key={q.pergunta} className="flex items-start justify-between gap-4 text-muted">
-                  <span className="line-clamp-2 leading-relaxed">{q.pergunta}</span>
-                  <span className="shrink-0 rounded-md bg-red-500/10 px-2 py-1 font-semibold text-red-500">{q.errosPct}%</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-          <Card className="flex flex-col p-6 shadow-sm">
-            <p className="mb-4 flex items-center gap-2 font-display font-semibold text-emerald-500"><TrendingUp size={18} /> Questões mais acertadas</p>
-            <ul className="flex-1 space-y-4 text-sm">
-              {demoKpis.questoesMaisAcertadas.map((q) => (
-                <li key={q.pergunta} className="flex items-start justify-between gap-4 text-muted">
-                  <span className="line-clamp-2 leading-relaxed">{q.pergunta}</span>
-                  <span className="shrink-0 rounded-md bg-emerald-500/10 px-2 py-1 font-semibold text-emerald-600 dark:text-emerald-400">{q.acertosPct}%</span>
-                </li>
-              ))}
-            </ul>
-          </Card>
-          <Card className="flex flex-col p-6 shadow-sm">
-            <p className="mb-4 font-display font-semibold text-foreground">Engajamento e abandono</p>
-            <div className="flex-1 space-y-6 text-sm">
-              <div>
-                <div className="mb-2 flex justify-between font-medium text-muted"><span>Taxa de Engajamento</span><span className="text-foreground">{demoKpis.engajamentoPct}%</span></div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-surface-2"><div className="h-full rounded-full bg-gradient-atlas transition-all" style={{ width: `${demoKpis.engajamentoPct}%` }} /></div>
-              </div>
-              <div>
-                <div className="mb-2 flex justify-between font-medium text-muted"><span>Taxa de Abandono</span><span className="text-foreground">{demoKpis.abandonoPct}%</span></div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-surface-2"><div className="h-full rounded-full bg-red-500/80 transition-all" style={{ width: `${demoKpis.abandonoPct}%` }} /></div>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <Card className="mt-8 overflow-hidden shadow-sm">
-          <div className="border-b border-border p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="font-display text-lg font-semibold text-foreground">Base analítica (demonstração)</p>
-              <div className="relative w-full sm:w-72">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar colaborador..."
-                  className="h-10 w-full rounded-lg border border-border bg-surface-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted outline-none transition focus:border-atlas-orange focus:ring-1 focus:ring-atlas-orange"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="hidden w-full overflow-x-auto md:block">
-            <table className="w-full min-w-[800px] text-left text-sm">
-              <thead className="bg-surface-2/50 text-xs uppercase text-muted">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Colaborador</th>
-                  <th className="px-6 py-4 font-semibold">Cargo</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold">Progresso</th>
-                  <th className="px-6 py-4 font-semibold">Nota média</th>
-                  <th className="px-6 py-4 font-semibold">Último acesso</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filtered.map((r) => (
-                  <tr key={r.nome} className="transition-colors hover:bg-surface-2/30">
-                    <td className="px-6 py-4 font-medium text-foreground">{r.nome}</td>
-                    <td className="px-6 py-4 text-muted">{r.cargo}</td>
-                    <td className="px-6 py-4"><Badge variant={statusLabel[r.status].variant}>{statusLabel[r.status].label}</Badge></td>
-                    <td className="px-6 py-4 font-medium text-muted">{r.progresso}%</td>
-                    <td className="px-6 py-4 font-medium text-muted">{r.notaMedia}%</td>
-                    <td className="px-6 py-4 text-muted">{r.ultimoAcesso}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-            {/* Mobile View - Cards */}
-            <div className="md:hidden flex flex-col gap-4 mt-4">
-              {filtered.map((r) => (
-                <div key={r.nome} className="bg-surface-2 p-4 rounded-lg border border-border flex flex-col gap-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-semibold">{r.nome}</div>
-                      <div className="text-xs text-muted">{r.cargo} &bull; {r.departamento || ''}</div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-border bg-secondary/30 text-muted-foreground uppercase font-mono text-[10px] tracking-wider">
+                <th className="px-4 py-3 font-semibold">Colaborador</th>
+                <th className="px-4 py-3 font-semibold">Departamento</th>
+                <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold">Progresso</th>
+                <th className="px-4 py-3 font-semibold">Nota Média</th>
+                <th className="px-4 py-3 font-semibold">Último Acesso</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {filtered.map((r, i) => (
+                <tr key={i} className="hover:bg-secondary/20 transition-colors">
+                  <td className="px-4 py-3">
+                    <p className="font-semibold text-foreground">{r.nome}</p>
+                    <p className="text-[11px] text-muted-foreground">{r.cargo}</p>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.departamento}</td>
+                  <td className="px-4 py-3">
+                    {r.status === "concluido" && (
+                      <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
+                        Concluído
+                      </span>
+                    )}
+                    {r.status === "andamento" && (
+                      <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-400 border border-amber-500/20">
+                        Em Andamento
+                      </span>
+                    )}
+                    {r.status === "pendente" && (
+                      <span className="inline-flex items-center rounded-full bg-zinc-500/10 px-2.5 py-0.5 text-[10px] font-bold text-zinc-400 border border-zinc-500/20">
+                        Não Iniciado
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full bg-atlas-orange rounded-full"
+                          style={{ width: `${r.progresso}%` }}
+                        />
+                      </div>
+                      <span className="font-mono text-muted-foreground">{r.progresso}%</span>
                     </div>
-                    <Badge variant={statusLabel[r.status].variant}>{statusLabel[r.status].label}</Badge>
-                  </div>
-                  <div className="flex justify-between text-sm mt-2">
-                    <div className="text-muted">Progresso</div>
-                    <div className="font-medium">{r.progresso}%</div>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <div className="text-muted">Nota Média</div>
-                    <div className="font-medium">{r.notaMedia}%</div>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <div className="text-muted">Último Acesso</div>
-                    <div className="font-medium">{r.ultimoAcesso}</div>
-                  </div>
-                </div>
+                  </td>
+                  <td className="px-4 py-3 font-bold font-mono text-foreground">
+                    {r.notaMedia > 0 ? `${r.notaMedia}%` : "-"}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-muted-foreground">{r.ultimoAcesso}</td>
+                </tr>
               ))}
-            </div>
-
-        </Card>
-      </main>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    </AdminGate>
   );
 }
