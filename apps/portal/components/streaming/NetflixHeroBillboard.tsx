@@ -118,7 +118,7 @@ export function NetflixHeroBillboard({
             </div>
 
             {/* Giant Title (Apple & Samsung Keynote Style) */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-atlas-orange tracking-tight leading-[1.08] font-display mb-4 drop-shadow-[0_4px_24px_rgba(255,86,24,0.25)]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] font-display mb-4">
               <ModuleTitle title={activeModule.title} />
             </h1>
 

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Play, Plus, Check, Info, Clock, CheckCircle2 } from "lucide-react";
+import { Play, Plus, Check, Info, Clock, CheckCircle2, Sparkles } from "lucide-react";
 import type { ModuleMeta, ModuleProgress } from "@/lib/types";
 import { useOnboardingStore } from "@/lib/store";
 import { playUiSound } from "@/lib/soundEngine";
+import { moduleIcons } from "@/lib/moduleIcons";
 import { cn } from "@/lib/utils";
 
 interface NetflixModuleCardProps {
@@ -16,23 +17,23 @@ interface NetflixModuleCardProps {
   variant?: "standard" | "top10" | "compact";
 }
 
-// Map each module to high-tech cinematic color theme and icon concept
-const MODULE_THEMES: Record<number, { gradient: string; accent: string; tag: string }> = {
-  1: { gradient: "from-[#FF5618]/25 via-[#1a1412] to-[#0d0d11]", accent: "#FF5618", tag: "Cultura & Missão" },
-  2: { gradient: "from-[#0284c7]/25 via-[#0e1724] to-[#0d0d11]", accent: "#38bdf8", tag: "Supply Chain" },
-  3: { gradient: "from-[#dc2626]/25 via-[#221013] to-[#0d0d11]", accent: "#f87171", tag: "PGR & Segurança" },
-  4: { gradient: "from-[#ea580c]/25 via-[#1e130f] to-[#0d0d11]", accent: "#fb923c", tag: "Portfólio 360°" },
-  5: { gradient: "from-[#2563eb]/25 via-[#0f172a] to-[#0d0d11]", accent: "#60a5fa", tag: "Software Connect" },
-  6: { gradient: "from-[#7c3aed]/25 via-[#181126] to-[#0d0d11]", accent: "#c084fc", tag: "Atlas Profile & IA" },
-  7: { gradient: "from-[#059669]/25 via-[#0d1f19] to-[#0d0d11]", accent: "#34d399", tag: "APIs & Telemetria" },
-  8: { gradient: "from-[#d97706]/25 via-[#1f190f] to-[#0d0d11]", accent: "#fbbf24", tag: "Contas Estratégicas" },
-  9: { gradient: "from-[#e11d48]/25 via-[#221017] to-[#0d0d11]", accent: "#fb7185", tag: "Comercial de Alta Performance" },
-  10: { gradient: "from-[#4f46e5]/25 via-[#131428] to-[#0d0d11]", accent: "#818cf8", tag: "Vocabulário Operacional" },
-  11: { gradient: "from-[#0891b2]/25 via-[#0f1c22] to-[#0d0d11]", accent: "#22d3ee", tag: "Central de Operações" },
-  12: { gradient: "from-[#16a34a]/25 via-[#102016] to-[#0d0d11]", accent: "#4ade80", tag: "Compliance & LGPD" },
-  13: { gradient: "from-[#9333ea]/25 via-[#1b1029] to-[#0d0d11]", accent: "#e879f9", tag: "IA Preditiva & Sensores" },
-  14: { gradient: "from-[#f59e0b]/25 via-[#211a10] to-[#0d0d11]", accent: "#fcd34d", tag: "Casos Reais & Gestão" },
-  15: { gradient: "from-[#FF5618]/30 via-[#26130d] to-[#0d0d11]", accent: "#FF7033", tag: "Síntese Final & Prova" },
+// Configuração visual padronizada por módulo (Alta definição + Paleta AtlasGR)
+const MODULE_THEMES: Record<number, { accent: string; tag: string }> = {
+  1: { accent: "#FF5618", tag: "Cultura & Missão" },
+  2: { accent: "#0284c7", tag: "Supply Chain" },
+  3: { accent: "#dc2626", tag: "PGR & Segurança" },
+  4: { accent: "#ea580c", tag: "Portfólio 360°" },
+  5: { accent: "#2563eb", tag: "Software Connect" },
+  6: { accent: "#7c3aed", tag: "Atlas Profile & IA" },
+  7: { accent: "#059669", tag: "APIs & Telemetria" },
+  8: { accent: "#d97706", tag: "Contas Estratégicas" },
+  9: { accent: "#e11d48", tag: "Comercial de Alta Performance" },
+  10: { accent: "#4f46e5", tag: "Vocabulário Operacional" },
+  11: { accent: "#0891b2", tag: "Central de Operações" },
+  12: { accent: "#16a34a", tag: "Compliance & LGPD" },
+  13: { accent: "#9333ea", tag: "IA Preditiva & Sensores" },
+  14: { accent: "#f59e0b", tag: "Casos Reais & Gestão" },
+  15: { accent: "#FF5618", tag: "Síntese Final & Prova" },
 };
 
 export function NetflixModuleCard({
@@ -50,10 +51,11 @@ export function NetflixModuleCard({
   const isPassed = Boolean(progress?.passed);
   const isStarted = !isPassed && Boolean(progress?.completed || (progress?.attempts && progress.attempts > 0));
   const theme = MODULE_THEMES[meta.number] || {
-    gradient: "from-[#FF5618]/25 via-[#1a1412] to-[#0d0d11]",
     accent: "#FF5618",
     tag: meta.category || "Geral",
   };
+
+  const Icon = moduleIcons[meta.slug];
 
   const handleToggleList = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -72,81 +74,89 @@ export function NetflixModuleCard({
   return (
     <div
       className={cn(
-        "group relative select-none transition-all duration-300",
-        variant === "top10" ? "flex items-center gap-2 min-w-[280px] sm:min-w-[340px]" : "min-w-[240px] sm:min-w-[280px] lg:min-w-[310px]"
+        "group relative select-none shrink-0 transition-all duration-300",
+        "w-[260px] sm:w-[290px] lg:w-[320px]"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Estilização Top 10 Numerada estilo Netflix */}
-      {variant === "top10" && rankIndex !== undefined && (
-        <div className="relative shrink-0 flex items-center justify-center select-none w-16 sm:w-20">
-          <span
-            className="font-black text-6xl sm:text-8xl italic tracking-tighter leading-none font-display drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] text-transparent bg-clip-text bg-gradient-to-b from-zinc-400 to-zinc-900 dark:from-[#555562] dark:to-[#1c1c24]"
-            style={{
-              WebkitTextStroke: "2px currentColor",
-            }}
-          >
-            {rankIndex + 1}
-          </span>
-        </div>
-      )}
-
-      {/* Card Poster Cinematográfico 16:9 */}
+      {/* Card Poster Estilo Netflix / Apple TV */}
       <div
         className={cn(
-          "relative w-full aspect-[16/9] rounded-xl overflow-hidden cursor-pointer transition-all duration-300 ease-out",
-          "border border-border/80 bg-surface dark:border-white/10 dark:bg-[#121318] shadow-sm",
-          "hover:border-atlas-orange/50 hover:shadow-[0_16px_35px_rgba(0,0,0,0.1),0_0_20px_rgba(255,86,24,0.2)] dark:hover:shadow-[0_16px_40px_rgba(0,0,0,0.8),0_0_24px_rgba(255,86,24,0.3)] hover:scale-[1.04] hover:z-30"
+          "relative w-full aspect-[16/10] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ease-out",
+          "border border-border/80 bg-surface dark:border-white/10 dark:bg-[#111218] shadow-sm",
+          "hover:border-atlas-orange/60 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12),0_0_24px_rgba(255,86,24,0.22)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_28px_rgba(255,86,24,0.3)] hover:-translate-y-1 hover:scale-[1.02] hover:z-30"
         )}
         onClick={() => onOpenDetails(meta)}
       >
-        {/* Background Visual High-Tech Cinematográfico */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient}`} />
+        {/* Imagem Real de Fundo com Fallback Cinematográfico Padronizado */}
+        <div className="absolute inset-0 bg-[#0d0e14]">
+          {meta.imageUrl ? (
+            <img
+              src={meta.imageUrl}
+              alt={meta.title}
+              className="w-full h-full object-cover opacity-60 dark:opacity-40 group-hover:scale-105 group-hover:opacity-75 transition-all duration-500"
+              onError={(e) => {
+                // Em caso de falha de carregamento, oculta a tag e deixa o gradiente vetorial
+                (e.target as HTMLElement).style.display = "none";
+              }}
+            />
+          ) : null}
 
-        {/* Linhas de grade sutis e brilho holográfico */}
-        <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle at 50% 30%, rgba(255,255,255,0.15) 0%, transparent 60%)",
-          }}
-        />
+          {/* Gradiente Tático e Grid Holográfico */}
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20"
+            style={{
+              boxShadow: `inset 0 0 80px rgba(0,0,0,0.8)`,
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(circle at 50% 20%, rgba(255,255,255,0.2) 0%, transparent 70%)",
+            }}
+          />
+        </div>
 
-        {/* Gradiente escuro inferior para contraste perfeito de texto */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-
-        {/* Top Badges */}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-black/60 backdrop-blur-md text-white/90 border border-white/10">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.accent }} />
+        {/* Top Header: Badge do Módulo + Status */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-black/75 backdrop-blur-md text-white border border-white/15 shadow-sm">
+            <span className="w-2 h-2 rounded-full shadow-[0_0_6px_currentColor]" style={{ backgroundColor: theme.accent, color: theme.accent }} />
             Módulo {String(meta.number).padStart(2, "0")}
           </span>
 
           {isPassed ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/25 backdrop-blur-md text-emerald-300 border border-emerald-500/40">
               <CheckCircle2 size={12} /> Validado
             </span>
           ) : isStarted ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-atlas-orange/20 backdrop-blur-md text-atlas-orange border border-atlas-orange/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-atlas-orange/25 backdrop-blur-md text-atlas-orange border border-atlas-orange/40">
               Em curso
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/50 backdrop-blur-md text-zinc-400 border border-white/5">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono text-zinc-300 bg-black/60 backdrop-blur-md border border-white/10">
               <Clock size={11} /> {meta.durationMinutes}m
             </span>
           )}
         </div>
 
+        {/* Ícone de Marca D'Água Translúcido no Card */}
+        {Icon && (
+          <div className="absolute right-3 bottom-12 text-white/[0.08] dark:text-white/[0.05] pointer-events-none select-none transition-transform group-hover:scale-110 duration-500">
+            <Icon width={68} height={68} />
+          </div>
+        )}
+
         {/* Informações Centrais e Título do Módulo */}
-        <div className="absolute bottom-3 left-3 right-3 z-10">
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: theme.accent }}>
+        <div className="absolute bottom-3.5 left-3.5 right-3.5 z-10 text-left">
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-1 font-mono" style={{ color: theme.accent }}>
             {theme.tag}
           </p>
-          <h3 className="text-sm sm:text-base font-black text-white leading-tight font-display drop-shadow-md line-clamp-1 group-hover:text-atlas-orange transition-colors">
+          <h3 className="text-sm sm:text-base font-black text-white leading-snug font-display drop-shadow-md line-clamp-1 group-hover:text-atlas-orange transition-colors">
             {meta.title}
           </h3>
 
-          <p className="text-[11px] text-zinc-300 line-clamp-1 mt-0.5 hidden sm:block font-medium drop-shadow-sm">
+          <p className="text-[11px] text-zinc-300/90 line-clamp-1 mt-0.5 font-medium drop-shadow-sm">
             {meta.shortDescription}
           </p>
 
@@ -164,13 +174,13 @@ export function NetflixModuleCard({
         {/* Quick Action Overlay no Hover (Netflix Overlay Adaptado para Light/Dark) */}
         <div
           className={cn(
-            "absolute inset-0 z-20 flex flex-col justify-between p-3.5 transition-opacity duration-200 backdrop-blur-md",
-            "bg-white/95 text-zinc-900 border border-zinc-200/90 shadow-xl dark:bg-black/90 dark:text-white dark:border-white/10",
-            isHovered ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+            "absolute inset-0 z-20 flex flex-col justify-between p-4 transition-all duration-200 backdrop-blur-xl",
+            "bg-white/95 text-zinc-900 border border-zinc-200/90 shadow-2xl dark:bg-black/92 dark:text-white dark:border-white/15",
+            isHovered ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-98"
           )}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-atlas-orange/15 text-atlas-orange border border-atlas-orange/30">
+            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-atlas-orange/15 text-atlas-orange border border-atlas-orange/30">
               Original AtlasGR
             </span>
 
@@ -180,25 +190,28 @@ export function NetflixModuleCard({
               title="Ver detalhes completos"
               aria-label="Ver detalhes do módulo"
             >
-              <Info size={15} />
+              <Info size={16} />
             </button>
           </div>
 
           <div>
-            <h4 className="text-xs sm:text-sm font-black text-foreground dark:text-white line-clamp-1 font-display mb-1">
+            <span className="text-[10px] font-mono text-muted dark:text-zinc-400 uppercase tracking-widest block mb-0.5">
+              Módulo {String(meta.number).padStart(2, "0")} • {meta.durationMinutes} min
+            </span>
+            <h4 className="text-sm sm:text-base font-black text-foreground dark:text-white line-clamp-1 font-display mb-1.5">
               {meta.title}
             </h4>
-            <p className="text-[10px] text-muted dark:text-zinc-300 line-clamp-2 leading-relaxed">
+            <p className="text-xs text-muted dark:text-zinc-300 line-clamp-2 leading-relaxed">
               {meta.shortDescription}
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-2 pt-1 border-t border-border dark:border-white/10">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-border dark:border-white/10">
+            <div className="flex items-center gap-2">
               <Link
                 href={`/trilha/${meta.slug}`}
                 onClick={() => playUiSound("click")}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-extrabold text-xs transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-black text-xs transition-transform active:scale-95 shadow-sm"
               >
                 <Play size={13} className="fill-current" />
                 {isPassed ? "Rever" : isStarted ? "Continuar" : "Assistir"}
@@ -207,7 +220,7 @@ export function NetflixModuleCard({
               <button
                 onClick={handleToggleList}
                 className={cn(
-                  "p-1.5 rounded-lg border transition-colors",
+                  "p-2 rounded-xl border transition-colors",
                   isInMyList
                     ? "bg-atlas-orange text-white border-atlas-orange"
                     : "bg-surface-2 hover:bg-zinc-200 text-foreground border-border dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/15"
@@ -219,8 +232,8 @@ export function NetflixModuleCard({
               </button>
             </div>
 
-            <span className="text-[10px] font-mono text-muted dark:text-zinc-400 font-semibold">
-              {meta.durationMinutes} MIN
+            <span className="text-[10px] font-mono font-bold text-atlas-orange">
+              4K ULTRA HD
             </span>
           </div>
         </div>
@@ -228,3 +241,4 @@ export function NetflixModuleCard({
     </div>
   );
 }
+

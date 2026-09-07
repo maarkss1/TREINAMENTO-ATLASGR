@@ -13,9 +13,9 @@ export function ModuleTitle({ title, className }: ModuleTitleProps) {
   // Tratamento específico para "Bem-vindo à AtlasGR" garantindo separação visual perfeita
   if (/bem-vindo\s+[aà]\s*atlas/i.test(cleanTitle)) {
     return (
-      <span className={cn("inline-flex flex-wrap items-center gap-x-2.5 sm:gap-x-3.5 text-atlas-orange", className)}>
-        <span>Bem-vindo à</span>
-        <span className="text-foreground dark:text-white font-black tracking-tight">AtlasGR</span>
+      <span className={cn("inline-flex flex-wrap items-center tracking-tight", className)}>
+        <span className="text-atlas-orange font-black mr-2 sm:mr-3">Bem-vindo à</span>
+        <span className="text-foreground dark:text-white font-black">AtlasGR</span>
       </span>
     );
   }
