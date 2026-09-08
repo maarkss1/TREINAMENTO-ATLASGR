@@ -81,61 +81,58 @@ export function NetflixModuleCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Card Poster Estilo Netflix / Apple TV */}
+      {/* Card Poster Redondo com Fundo Laranja AtlasGR */}
       <div
         className={cn(
-          "relative w-full aspect-[16/10] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ease-out",
-          "border border-border/80 bg-surface dark:border-white/10 dark:bg-[#111218] shadow-sm",
-          "hover:border-atlas-orange/60 hover:shadow-[0_20px_40px_rgba(0,0,0,0.12),0_0_24px_rgba(255,86,24,0.22)] dark:hover:shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_28px_rgba(255,86,24,0.3)] hover:-translate-y-1 hover:scale-[1.02] hover:z-30"
+          "relative w-full aspect-[16/10] rounded-3xl overflow-hidden cursor-pointer transition-all duration-300 ease-out",
+          "border-2 border-atlas-orange/30 bg-gradient-to-br from-[#FF5618] via-[#e04509] to-[#992800] shadow-md",
+          "hover:border-white/80 hover:shadow-[0_20px_45px_rgba(255,86,24,0.45),0_0_30px_rgba(255,86,24,0.35)] hover:-translate-y-1.5 hover:scale-[1.03] hover:z-30"
         )}
         onClick={() => onOpenDetails(meta)}
       >
-        {/* Imagem Real de Fundo com Fallback Cinematográfico Padronizado */}
-        <div className="absolute inset-0 bg-[#0d0e14]">
+        {/* Imagem Real de Fundo com Fusão no Gradiente Laranja */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ff5618]/90 via-[#c93e08]/90 to-[#6b1c00]/95">
           {meta.imageUrl ? (
             <img
               src={meta.imageUrl.startsWith("http") ? meta.imageUrl : `${BASE_PATH}${meta.imageUrl}`}
               alt={meta.title}
-              className="w-full h-full object-cover opacity-60 dark:opacity-40 group-hover:scale-105 group-hover:opacity-75 transition-all duration-500"
+              className="w-full h-full object-cover mix-blend-overlay opacity-50 group-hover:scale-110 group-hover:opacity-65 transition-all duration-700"
               onError={(e) => {
-                // Em caso de falha de carregamento, oculta a tag e deixa o gradiente vetorial
                 (e.target as HTMLElement).style.display = "none";
               }}
             />
           ) : null}
 
-          {/* Gradiente Tático e Grid Holográfico */}
+          {/* Iluminação Interna, Brilho Superior e Gradiente Tático */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div
-            className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20"
-            style={{
-              boxShadow: `inset 0 0 80px rgba(0,0,0,0.8)`,
-            }}
+            className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-white/20 blur-2xl pointer-events-none group-hover:bg-white/30 transition-all duration-500"
           />
           <div
-            className="absolute inset-0 opacity-15 pointer-events-none"
+            className="absolute inset-0 opacity-20 pointer-events-none"
             style={{
-              backgroundImage: "radial-gradient(circle at 50% 20%, rgba(255,255,255,0.2) 0%, transparent 70%)",
+              backgroundImage: "radial-gradient(circle at 80% 20%, rgba(255,255,255,0.4) 0%, transparent 60%)",
             }}
           />
         </div>
 
         {/* Top Header: Badge do Módulo + Status */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-black/75 backdrop-blur-md text-white border border-white/15 shadow-sm">
-            <span className="w-2 h-2 rounded-full shadow-[0_0_6px_currentColor]" style={{ backgroundColor: theme.accent, color: theme.accent }} />
+        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/20 backdrop-blur-md text-white border border-white/30 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_#ffffff]" />
             Módulo {String(meta.number).padStart(2, "0")}
           </span>
 
           {isPassed ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/25 backdrop-blur-md text-emerald-600 dark:text-emerald-300 border border-emerald-500/40">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/90 text-white backdrop-blur-md border border-emerald-300/40 shadow-sm">
               <CheckCircle2 size={12} /> Validado
             </span>
           ) : isStarted ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-atlas-orange/20 backdrop-blur-md text-atlas-orange border border-atlas-orange/40">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-bold bg-white/90 text-atlas-orange backdrop-blur-md shadow-sm">
               Em curso
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono text-zinc-300 bg-black/60 backdrop-blur-md border border-white/10">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-mono font-semibold text-white/90 bg-black/40 backdrop-blur-md border border-white/20">
               <Clock size={11} /> {meta.durationMinutes}m
             </span>
           )}
@@ -143,51 +140,51 @@ export function NetflixModuleCard({
 
         {/* Ícone de Marca D'Água Translúcido no Card */}
         {Icon && (
-          <div className="absolute right-3 bottom-12 text-white/[0.08] dark:text-white/[0.05] pointer-events-none select-none transition-transform group-hover:scale-110 duration-500">
-            <Icon width={68} height={68} />
+          <div className="absolute right-4 bottom-10 text-white/15 pointer-events-none select-none transition-transform group-hover:scale-115 duration-500">
+            <Icon width={76} height={76} />
           </div>
         )}
 
         {/* Informações Centrais e Título do Módulo */}
-        <div className="absolute bottom-3.5 left-3.5 right-3.5 z-10 text-left">
-          <p className="text-[10px] font-bold uppercase tracking-widest mb-1 font-mono" style={{ color: theme.accent }}>
+        <div className="absolute bottom-4 left-4 right-4 z-10 text-left">
+          <span className="inline-block text-[10px] font-black uppercase tracking-widest mb-1 font-mono px-2 py-0.5 rounded-md bg-black/30 backdrop-blur-sm text-amber-200 border border-white/10">
             {theme.tag}
-          </p>
-          <h3 className="text-sm sm:text-base font-black text-white leading-snug font-display drop-shadow-md line-clamp-1 group-hover:text-atlas-orange transition-colors">
+          </span>
+          <h3 className="text-base sm:text-lg font-black text-white leading-snug font-display drop-shadow-lg line-clamp-1 group-hover:text-amber-200 transition-colors">
             {meta.title}
           </h3>
 
-          <p className="text-[11px] text-zinc-300/90 line-clamp-1 mt-0.5 font-medium drop-shadow-sm">
+          <p className="text-xs text-white/85 line-clamp-1 mt-0.5 font-medium drop-shadow-sm">
             {meta.shortDescription}
           </p>
 
-          {/* Barra de Progresso Em Andamento (estilo Netflix) */}
+          {/* Barra de Progresso Em Andamento */}
           {(isStarted || isPassed) && (
-            <div className="mt-2.5 w-full h-1 bg-white/20 rounded-full overflow-hidden">
+            <div className="mt-3 w-full h-1.5 bg-black/30 rounded-full overflow-hidden p-0.5">
               <div
-                className="h-full bg-atlas-orange rounded-full shadow-[0_0_8px_#FF5618]"
+                className="h-full bg-white rounded-full shadow-[0_0_8px_#ffffff]"
                 style={{ width: isPassed ? "100%" : "55%" }}
               />
             </div>
           )}
         </div>
 
-        {/* Quick Action Overlay no Hover (Netflix Overlay Adaptado para Light/Dark) */}
+        {/* Quick Action Overlay no Hover com Cantos Redondos */}
         <div
           className={cn(
-            "absolute inset-0 z-20 flex flex-col justify-between p-4 transition-all duration-200 backdrop-blur-xl",
-            "bg-white/95 text-zinc-900 border border-zinc-200/90 shadow-2xl dark:bg-black/92 dark:text-white dark:border-white/15",
-            isHovered ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-98"
+            "absolute inset-0 z-20 flex flex-col justify-between p-5 transition-all duration-300 rounded-3xl backdrop-blur-xl",
+            "bg-gradient-to-br from-[#FF5618]/95 via-[#d43f05]/95 to-[#802000]/95 text-white border-2 border-white/40 shadow-2xl",
+            isHovered ? "opacity-100 pointer-events-auto scale-100" : "opacity-0 pointer-events-none scale-95"
           )}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-atlas-orange/15 text-atlas-orange border border-atlas-orange/30">
-              Original AtlasGR
+            <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/25 text-white border border-white/40 shadow-xs">
+              AtlasGR Academy
             </span>
 
             <button
               onClick={handleInfoClick}
-              className="p-1.5 rounded-full bg-surface-2 hover:bg-zinc-200 text-foreground dark:bg-white/10 dark:hover:bg-white/20 dark:text-white transition-colors"
+              className="p-2 rounded-full bg-white/20 hover:bg-white/35 text-white border border-white/30 transition-all hover:scale-110 active:scale-95 shadow-sm"
               title="Ver detalhes completos"
               aria-label="Ver detalhes do módulo"
             >
@@ -195,24 +192,24 @@ export function NetflixModuleCard({
             </button>
           </div>
 
-          <div>
-            <span className="text-[10px] font-mono text-muted dark:text-zinc-400 uppercase tracking-widest block mb-0.5">
+          <div className="my-auto">
+            <span className="text-[10px] font-mono text-amber-200 uppercase tracking-widest block mb-1 font-bold">
               Módulo {String(meta.number).padStart(2, "0")} • {meta.durationMinutes} min
             </span>
-            <h4 className="text-sm sm:text-base font-black text-foreground dark:text-white line-clamp-1 font-display mb-1.5">
+            <h4 className="text-base sm:text-lg font-black text-white line-clamp-1 font-display mb-1.5 drop-shadow-md">
               {meta.title}
             </h4>
-            <p className="text-xs text-muted dark:text-zinc-300 line-clamp-2 leading-relaxed">
+            <p className="text-xs text-white/90 line-clamp-2 leading-relaxed">
               {meta.shortDescription}
             </p>
           </div>
 
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-border dark:border-white/10">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/25">
+            <div className="flex items-center gap-2.5">
               <Link
                 href={`/trilha/${meta.slug}`}
                 onClick={() => playUiSound("click")}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-black text-xs transition-transform active:scale-95 shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white hover:bg-amber-100 text-zinc-950 font-black text-xs transition-all hover:scale-105 active:scale-95 shadow-md"
               >
                 <Play size={13} className="fill-current" />
                 {isPassed ? "Rever" : isStarted ? "Continuar" : "Assistir"}
@@ -221,10 +218,10 @@ export function NetflixModuleCard({
               <button
                 onClick={handleToggleList}
                 className={cn(
-                  "p-2 rounded-xl border transition-colors",
+                  "p-2.5 rounded-2xl border transition-all hover:scale-105 active:scale-95 shadow-sm",
                   isInMyList
-                    ? "bg-atlas-orange text-white border-atlas-orange"
-                    : "bg-surface-2 hover:bg-zinc-200 text-foreground border-border dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/15"
+                    ? "bg-white text-atlas-orange border-white"
+                    : "bg-white/20 hover:bg-white/30 text-white border-white/30"
                 )}
                 title={isInMyList ? "Remover da Minha Lista" : "Adicionar à Minha Lista"}
                 aria-label="Favoritar módulo"
@@ -233,7 +230,7 @@ export function NetflixModuleCard({
               </button>
             </div>
 
-            <span className="text-[10px] font-mono font-bold text-atlas-orange">
+            <span className="text-[10px] font-mono font-black text-amber-200">
               4K ULTRA HD
             </span>
           </div>

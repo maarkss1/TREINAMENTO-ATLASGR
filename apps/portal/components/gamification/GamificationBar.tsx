@@ -71,7 +71,7 @@ export function GamificationBar({ className, variant = "full" }: GamificationBar
   return (
     <section
       className={cn(
-        "rounded-2xl border border-border/80 bg-surface dark:bg-[#111218] p-5 sm:p-6 shadow-sm transition-all select-none backdrop-blur-md",
+        "rounded-3xl border-2 border-atlas-orange/20 bg-surface/90 dark:bg-[#111218]/90 p-5 sm:p-6 shadow-md transition-all select-none backdrop-blur-xl hover:border-atlas-orange/40",
         className
       )}
     >
