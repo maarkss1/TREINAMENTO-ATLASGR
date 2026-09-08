@@ -18,6 +18,11 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
   basePath: repoPath,
   assetPrefix: assetPath,
+  allowedDevOrigins: [
+    "localhost:3000",
+    "192.168.0.179:3000",
+    "192.168.0.179",
+  ],
 };
 
 export default nextConfig;
