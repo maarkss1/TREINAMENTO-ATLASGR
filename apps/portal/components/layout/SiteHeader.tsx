@@ -84,14 +84,14 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 transition-all duration-300",
+          "sticky top-0 z-50 h-16 transition-all duration-300",
           scrolled
-            ? "border-b border-border dark:border-white/10 bg-background/85 dark:bg-black/85 backdrop-blur-2xl shadow-md dark:shadow-xl py-2.5"
-            : "bg-gradient-to-b from-background/90 via-background/40 to-transparent dark:from-black/90 dark:via-black/50 dark:to-transparent py-4 border-b border-transparent",
+            ? "border-b border-border dark:border-white/10 bg-background/85 dark:bg-black/85 backdrop-blur-2xl shadow-md dark:shadow-xl"
+            : "bg-gradient-to-b from-background/90 via-background/40 to-transparent dark:from-black/90 dark:via-black/50 dark:to-transparent border-b border-transparent",
           hidden ? "-translate-y-full" : "translate-y-0"
         )}
       >
-        <div className="mx-auto flex h-14 max-w-[1700px] items-center justify-between px-6 sm:px-10 lg:px-14">
+        <div className="mx-auto flex h-full max-w-[1700px] items-center justify-between px-6 sm:px-10 lg:px-14">
           {/* Logo Brand */}
           <Link href="/" className="group flex items-center gap-2">
             <div className="transition-transform duration-300 group-hover:scale-105">

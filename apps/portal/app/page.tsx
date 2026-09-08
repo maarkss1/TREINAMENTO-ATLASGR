@@ -119,7 +119,7 @@ export default function HomePage() {
       />
 
       {/* Filtros em Formato de Pílulas Estilo Apple */}
-      <div className="sticky top-16 z-30 bg-background/90 dark:bg-[#08080a]/90 backdrop-blur-xl border-b border-border dark:border-white/10 py-3.5 px-6 sm:px-10 lg:px-14">
+      <div className="sticky top-16 z-30 bg-background/95 dark:bg-[#08080a]/95 backdrop-blur-xl border-b border-border dark:border-white/10 py-3 px-6 sm:px-10 lg:px-14 shadow-xs">
         <div className="mx-auto max-w-[1700px] flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2 shrink-0">
             {filterTabs.map((tab) => (

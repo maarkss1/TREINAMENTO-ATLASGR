@@ -39,11 +39,11 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
   if (!isProfile && !isConnectOrGR && !isAnalytics) {
     // Basic fallback for now
     return (
-      <div className="min-h-screen bg-atlas-dark text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <SiteHeader />
         <main className="flex flex-col items-center justify-center p-8 text-center">
           <h1 className="text-4xl font-bold mb-4 capitalize">Módulo {slug}</h1>
-          <p className="text-gray-400 max-w-2xl text-center">
+          <p className="text-muted max-w-2xl text-center">
             Este módulo não possui um showcase específico ainda. Navegue para /produtos/profile, /produtos/connect ou /produtos/gr.
           </p>
         </main>
@@ -52,18 +52,18 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <div className="min-h-screen bg-atlas-dark text-white font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <SiteHeader />
       <main className="overflow-hidden">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-8 flex flex-col items-center text-center">
+      <section className="relative pt-16 pb-16 px-6 sm:px-8 flex flex-col items-center text-center">
         {/* Background glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-atlas-orange/10 rounded-full blur-[120px] pointer-events-none" />
         
-        <h1 className="text-5xl md:text-7xl font-bold font-secondary mb-6 relative z-10">
+        <h1 className="text-4xl md:text-6xl font-black font-display mb-4 relative z-10 text-foreground">
           Atlas <span className="text-atlas-orange capitalize">{slug}</span>
         </h1>
-        <p className="text-xl text-gray-400 max-w-3xl mb-12 relative z-10">
+        <p className="text-base sm:text-lg text-muted max-w-3xl mb-8 relative z-10">
           {isProfile && "Inteligência Artificial que analisa o risco de contratação em menos de 5 minutos, garantindo a conformidade da sua operação."}
           {isConnectOrGR && "A Torre de Controle definitiva. Transforme eventos brutos em gestão por exceção e acione a Célula de Inteligência Atlas (C.I.A) automaticamente."}
           {slug === "analytics" && "O Cockpit Executivo para visualização de dados logísticos e operacionais em tempo real."}
@@ -71,27 +71,27 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* Showcase Content */}
-      <section className="py-16 px-8 relative z-10">
+      <section className="py-12 px-6 sm:px-8 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col items-center">
           
           {isProfile && (
             <div className="w-full flex flex-col lg:flex-row items-center gap-16 justify-between">
               <div className="lg:w-1/2">
-                <h2 className="text-3xl font-bold mb-4">O Custo Invisível da Contratação</h2>
-                <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                <h2 className="text-3xl font-bold mb-4 text-foreground">O Custo Invisível da Contratação</h2>
+                <p className="text-muted text-base sm:text-lg leading-relaxed mb-6">
                   Um erro na contratação pode custar milhões. O Atlas Profile utiliza IA para cruzar dados criminais, biometria facial e histórico profissional instantaneamente.
                 </p>
                 <GlossaryTooltip>
                   <ul className="space-y-4">
-                    <li className="flex items-center gap-3 text-gray-300">
+                    <li className="flex items-center gap-3 text-foreground/80">
                       <div className="w-2 h-2 rounded-full bg-atlas-orange" />
                       Resumo automático de processos judiciais
                     </li>
-                    <li className="flex items-center gap-3 text-gray-300">
+                    <li className="flex items-center gap-3 text-foreground/80">
                       <div className="w-2 h-2 rounded-full bg-atlas-orange" />
                       Validação por FaceID
                     </li>
-                    <li className="flex items-center gap-3 text-gray-300">
+                    <li className="flex items-center gap-3 text-foreground/80">
                       <div className="w-2 h-2 rounded-full bg-atlas-orange" />
                       SLA de retorno em menos de 5 minutos
                     </li>
@@ -201,9 +201,9 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
       </section>
 
       {/* Value Metrics Section */}
-      <section className="py-24 px-8 bg-black/50 border-t border-white/5 relative z-10">
+      <section className="py-20 px-6 sm:px-8 bg-surface-2/60 border-t border-border dark:border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-16">Impacto Real em Operações Complexas</h2>
+          <h2 className="text-3xl font-bold mb-16 text-foreground">Impacto Real em Operações Complexas</h2>
           <ValueMetricsCards />
         </div>
       </section>

@@ -33,8 +33,18 @@ export default function GlossarioPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar termo (ex.: PGR, checklist, malícia...)"
-            className="h-12 w-full rounded-full border border-border bg-surface pl-11 pr-4 text-sm outline-none focus:border-atlas-orange"
+            className="h-12 w-full rounded-full border border-border bg-surface pl-11 pr-10 text-sm outline-none focus:border-atlas-orange"
           />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-foreground text-xs font-bold"
+              aria-label="Limpar busca"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -42,7 +52,11 @@ export default function GlossarioPage() {
             <Card key={g.id} className="p-5">
               <p className="font-display font-semibold text-foreground">{g.term}</p>
               <p className="mt-1.5 text-sm text-muted">{g.definition}</p>
-              {g.atlasUsage && <p className="mt-2 text-xs text-atlas-orange/90">Como a Atlas usa: {g.atlasUsage}</p>}
+              {g.atlasUsage && (
+                <p className="mt-2 text-xs font-medium text-[#c2410c] dark:text-atlas-orange">
+                  Como a Atlas usa: {g.atlasUsage}
+                </p>
+              )}
             </Card>
           ))}
           {filtered.length === 0 && <p className="text-muted">Nenhum termo encontrado para &ldquo;{query}&rdquo;.</p>}

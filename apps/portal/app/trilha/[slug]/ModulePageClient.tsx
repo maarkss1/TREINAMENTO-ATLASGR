@@ -32,7 +32,7 @@ import { ImmersiveLessonStage } from "@/components/module/ImmersiveLessonStage";
 import { MermaidViewer } from "@/components/diagrams/MermaidViewer";
 import { ModuleRating } from "@/components/module/ModuleRating";
 import { CertificateActions } from "@/components/module/CertificateActions";
-import type { ContentBlock, ModuleContentFull, ModuleSection, ModuleMeta, QuizQuestionClient } from "@/lib/types";
+import type { ContentBlock, ModuleContentFull, ModuleSection, ModuleMeta, QuizQuestionClient, QuizQuestion } from "@/lib/types";
 import { AccessibilityToolbar } from "@/components/accessibility/AccessibilityToolbar";
 import { ModuleTitle } from "@/components/brand/ModuleTitle";
 import { ModuleCelebrationModal } from "@/components/gamification/ModuleCelebrationModal";
@@ -139,10 +139,24 @@ export function ModulePageClient() {
   
   useEffect(() => {
     if (!params.slug) return;
+    const localQuiz = getQuizForModule(params.slug);
     fetch(`http://localhost:3001/quiz/${params.slug}`)
-      .then(r => r.json())
-      .then(setQuiz)
-      .catch(console.error);
+      .then((r) => {
+        if (!r.ok) throw new Error("Quiz API offline");
+        return r.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setQuiz(data);
+        } else if (localQuiz) {
+          setQuiz(localQuiz);
+        }
+      })
+      .catch(() => {
+        if (localQuiz) {
+          setQuiz(localQuiz);
+        }
+      });
   }, [params.slug]);
 
   const screens = useMemo(() => (content ? buildScreens(content) : []), [content]);
@@ -198,7 +212,7 @@ export function ModulePageClient() {
       {!isFocusMode && <SiteHeader />}
 
       {!isFocusMode && (
-        <div className="sticky top-0 z-40 md:top-14 border-b border-border/50 bg-background/95 backdrop-blur-md">
+        <div className="sticky top-16 z-40 border-b border-border/50 bg-background/95 backdrop-blur-md">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
             <Link href="/trilha" className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold text-muted transition-colors hover:text-atlas-orange">
               <ArrowLeft size={14} /> <span className="hidden sm:inline">Academia ATLASGR</span>
@@ -232,7 +246,7 @@ export function ModulePageClient() {
       </div>
       
       {/* Player Fixo Flutuante de Acessibilidade */}
-      <div className="fixed bottom-24 right-4 z-40 print:hidden lg:right-10">
+      <div className="fixed bottom-28 right-4 z-40 print:hidden lg:bottom-24 lg:right-10">
         <AccessibilityToolbar currentText={getScreenText(screen, meta, content)} />
       </div>
 
@@ -385,18 +399,42 @@ export function ModulePageClient() {
                         questions={quiz}
                         title={`Simulador — ${content.title}`}
                         onSubmit={async (answers) => {
-                          const userId = (registration as any)?.userId || (registration as any)?.id;
-                          const res = await fetch(`http://localhost:3001/quiz/${params.slug}/submit`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId, answers })
-                          });
-                          const data = await res.json();
-                          completeModuleQuiz(params.slug, data.score);
-                          if (data.passed) {
-                            setCelebrationOpen(true);
+                          try {
+                            const userId = (registration as any)?.userId || (registration as any)?.id;
+                            const res = await fetch(`http://localhost:3001/quiz/${params.slug}/submit`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ userId, answers })
+                            });
+                            if (res.ok) {
+                              const data = await res.json();
+                              completeModuleQuiz(params.slug, data.score);
+                              if (data.passed) setCelebrationOpen(true);
+                              return data;
+                            }
+                          } catch {
+                            // Fallback para cálculo local seguro
                           }
-                          return data;
+                          const localQuestions = (getQuizForModule(params.slug) || quiz || []) as QuizQuestion[];
+                          let correctCount = 0;
+                          const results = answers.map((ans) => {
+                            const found = localQuestions.find((q) => q.id === ans.questionId);
+                            const isCorrect = found ? found.correctIndex === ans.selectedOption : false;
+                            if (isCorrect) correctCount++;
+                            return {
+                              questionId: ans.questionId,
+                              isCorrect,
+                              explanation: found?.explanation || "",
+                              selectedOption: ans.selectedOption,
+                              correctIndex: found?.correctIndex ?? 0,
+                            };
+                          });
+                          const total = answers.length || 1;
+                          const score = Math.round((correctCount / total) * 100);
+                          const passed = score >= ((meta as any).minScore || 70);
+                          completeModuleQuiz(params.slug, score);
+                          if (passed) setCelebrationOpen(true);
+                          return { score, correctCount, total, passed, results };
                         }}
                       />
                     ) : (

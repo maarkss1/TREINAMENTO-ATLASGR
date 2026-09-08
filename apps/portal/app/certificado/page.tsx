@@ -93,7 +93,7 @@ export default function CertificadoPage() {
             <Download size={16} /> {generating ? "Gerando PDF..." : "Baixar certificado (PDF)"}
           </Button>
 
-          <p className="mt-4 text-xs text-muted/70">
+          <p className="mt-4 text-xs text-muted font-medium">
             Documento gerado localmente no navegador para fins de demonstração — sem assinatura digital com validade
             jurídica. Uma versão de produção emitiria e assinaria o certificado no backend.
           </p>

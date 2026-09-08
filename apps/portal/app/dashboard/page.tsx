@@ -114,7 +114,7 @@ export default function DashboardPage() {
             {(strongest || needsReview) && (
               <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
                 {strongest && <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-4"><p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Mais consistente</p><p className="mt-1 text-sm font-black">{strongest.category}</p><p className="mt-1 text-xs font-semibold text-muted">{strongest.score}%</p></div>}
-                {needsReview && <div className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4"><p className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Revisar primeiro</p><p className="mt-1 text-sm font-black">{needsReview.category}</p><p className="mt-1 text-xs font-semibold text-muted">{needsReview.score}%</p></div>}
+                {needsReview && <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4"><p className="text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-400">Revisar primeiro</p><p className="mt-1 text-sm font-black text-foreground">{needsReview.category}</p><p className="mt-1 text-xs font-semibold text-muted">{needsReview.score}%</p></div>}
               </div>
             )}
 

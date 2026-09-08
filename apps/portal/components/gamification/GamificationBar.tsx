@@ -82,7 +82,7 @@ export function GamificationBar({ className, variant = "full" }: GamificationBar
             <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-atlas-orange/15 border-2 border-atlas-orange/40 flex items-center justify-center text-atlas-orange font-display font-black text-xl shadow-glow">
               {current.level}
             </div>
-            <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded bg-zinc-900 text-white dark:bg-white dark:text-black font-mono text-[8px] font-black border border-border">
+            <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded bg-zinc-900 text-white dark:bg-white dark:text-black font-mono text-[9px] font-black border border-border shadow-xs">
               NVL
             </span>
           </div>
@@ -93,7 +93,7 @@ export function GamificationBar({ className, variant = "full" }: GamificationBar
                 Status Operacional
               </span>
               {streak > 0 && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
                   <Flame size={11} className="fill-amber-500" /> {streak}d
                 </span>
               )}
@@ -106,7 +106,7 @@ export function GamificationBar({ className, variant = "full" }: GamificationBar
             <p className="text-xs text-muted dark:text-zinc-400 font-mono mt-0.5">
               <strong className="text-foreground dark:text-white">{xp} XP</strong> acumulados
               {next && (
-                <span className="text-[11px] text-muted dark:text-zinc-500"> • Falta {xpRemaining} XP p/ Nv.{next.level}</span>
+                <span className="text-[11px] text-muted-foreground dark:text-zinc-400 font-medium"> • Falta {xpRemaining} XP p/ Nv.{next.level}</span>
               )}
             </p>
           </div>

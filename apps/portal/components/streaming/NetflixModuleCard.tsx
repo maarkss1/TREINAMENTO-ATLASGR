@@ -126,11 +126,11 @@ export function NetflixModuleCard({
           </span>
 
           {isPassed ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/25 backdrop-blur-md text-emerald-300 border border-emerald-500/40">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/25 backdrop-blur-md text-emerald-600 dark:text-emerald-300 border border-emerald-500/40">
               <CheckCircle2 size={12} /> Validado
             </span>
           ) : isStarted ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-atlas-orange/25 backdrop-blur-md text-atlas-orange border border-atlas-orange/40">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-atlas-orange/20 backdrop-blur-md text-atlas-orange border border-atlas-orange/40">
               Em curso
             </span>
           ) : (

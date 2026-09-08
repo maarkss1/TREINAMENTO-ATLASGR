@@ -100,7 +100,7 @@ export default function RankingPage() {
                   </div>
                 </div>
 
-                <ChevronRight size={18} className="hidden text-muted transition-transform group-hover:translate-x-1 group-hover:text-atlas-orange sm:block" aria-hidden="true" />
+                <ChevronRight size={18} className="text-muted transition-transform group-hover:translate-x-1 group-hover:text-atlas-orange block justify-self-end sm:justify-self-center" aria-hidden="true" />
               </Link>
             ))}
           </div>

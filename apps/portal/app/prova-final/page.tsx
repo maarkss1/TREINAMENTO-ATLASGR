@@ -27,9 +27,17 @@ export default function ProvaFinalPage() {
 
   useEffect(() => {
     fetch('http://localhost:3001/quiz/final-exam')
-      .then(res => res.json())
-      .then(setQuestions)
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) throw new Error("API offline");
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setQuestions(data);
+        else import("@/content/quizzes-v2").then(m => setQuestions(m.buildFinalExam(2)));
+      })
+      .catch(() => {
+        import("@/content/quizzes-v2").then(m => setQuestions(m.buildFinalExam(2)));
+      });
   }, []);
 
   if (!ready || !registration) return null;
@@ -140,16 +148,43 @@ export default function ProvaFinalPage() {
               timeLimitSeconds={FINAL_EXAM_SECONDS}
               passThreshold={FINAL_EXAM_PASS_SCORE}
               onSubmit={async (answers) => {
-                const userId = (registration as any)?.userId || (registration as any)?.id;
-                const res = await fetch(`http://localhost:3001/quiz/final-exam/submit`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ userId, answers })
+                try {
+                  const userId = (registration as any)?.userId || (registration as any)?.id;
+                  const res = await fetch(`http://localhost:3001/quiz/final-exam/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, answers })
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    setExamResult({ score: data.score, correct: data.correctCount, totalQuestions: data.total, passed: data.passed, date: new Date().toISOString() });
+                    setStarted(false);
+                    return data;
+                  }
+                } catch {
+                  // Fallback para cálculo local
+                }
+                const m = await import("@/content/quizzes-v2");
+                const allQuestions = m.getAllBuiltQuestions();
+                let correctCount = 0;
+                const results = answers.map((ans) => {
+                  const found = allQuestions.find((q) => q.id === ans.questionId);
+                  const isCorrect = found ? found.correctIndex === ans.selectedOption : false;
+                  if (isCorrect) correctCount++;
+                  return {
+                    questionId: ans.questionId,
+                    isCorrect,
+                    explanation: found?.explanation || "",
+                    selectedOption: ans.selectedOption,
+                    correctIndex: found?.correctIndex ?? 0,
+                  };
                 });
-                const data = await res.json();
-                setExamResult({ score: data.score, correct: data.correctCount, totalQuestions: data.total, passed: data.passed, date: new Date().toISOString() });
+                const total = answers.length || 1;
+                const score = Math.round((correctCount / total) * 100);
+                const passed = score >= FINAL_EXAM_PASS_SCORE;
+                setExamResult({ score, correct: correctCount, totalQuestions: total, passed, date: new Date().toISOString() });
                 setStarted(false);
-                return data;
+                return { score, correctCount, total, passed, results };
               }}
             />
           </div>
