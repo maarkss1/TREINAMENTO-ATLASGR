@@ -81,15 +81,16 @@ export default function HomePage() {
   // Módulos destacados para o Hero Billboard (Top Masterclasses)
   const featuredModules = useMemo(() => {
     const featuredSlugs = [
+      activeModule.slug,
       "01-bem-vindo-atlasgr",
       "03-gerenciamento-risco",
       "05-software-logistico",
       "13-tecnologia",
     ];
-    return featuredSlugs
+    return Array.from(new Set(featuredSlugs))
       .map((slug) => moduleMetas.find((m) => m.slug === slug))
       .filter((m): m is ModuleMeta => Boolean(m));
-  }, []);
+  }, [activeModule]);
 
   // Trilho: Continuar Assistindo (módulos iniciados ou em andamento)
   const inProgressModules = useMemo(() => {

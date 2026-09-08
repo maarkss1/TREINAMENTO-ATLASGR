@@ -17,11 +17,14 @@ import {
   Layers,
   ShieldCheck,
   Compass,
+  Lock,
+  ArrowRight,
 } from "lucide-react";
 import type { ModuleMeta } from "@/lib/types";
-import { getModuleContent } from "@/content/modules";
+import { getModuleContent, moduleMetas } from "@/content/modules";
 import { useOnboardingStore } from "@/lib/store";
 import { playUiSound } from "@/lib/soundEngine";
+import { isModuleUnlocked } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 interface ModuleDetailModalProps {
@@ -30,12 +33,15 @@ interface ModuleDetailModalProps {
 }
 
 export function ModuleDetailModal({ meta, onClose }: ModuleDetailModalProps) {
-  const progress = useOnboardingStore((s) => (meta ? s.progress[meta.slug] : undefined));
+  const allProgress = useOnboardingStore((s) => s.progress);
+  const progress = meta ? allProgress[meta.slug] : undefined;
   const myList = useOnboardingStore((s) => s.myList || []);
   const toggleMyList = useOnboardingStore((s) => s.toggleMyList);
 
   const isInMyList = meta ? myList.includes(meta.slug) : false;
   const isPassed = Boolean(progress?.passed);
+  const isLocked = meta ? !isModuleUnlocked(meta, allProgress, moduleMetas) : false;
+  const requiredModule = meta && isLocked ? moduleMetas.find((m) => m.number === meta.number - 1) : null;
   const content = meta ? getModuleContent(meta.slug) : null;
 
   useEffect(() => {
@@ -111,26 +117,56 @@ export function ModuleDetailModal({ meta, onClose }: ModuleDetailModalProps) {
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-atlas-orange/15 dark:bg-atlas-orange/20 text-atlas-orange border border-atlas-orange/30">
                   Módulo {String(meta.number).padStart(2, "0")} • {meta.category}
                 </span>
-                {isPassed && (
+                {isLocked ? (
+                  <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-500 border border-amber-500/30 flex items-center gap-1">
+                    <Lock size={11} /> Bloqueado por Pré-requisito
+                  </span>
+                ) : isPassed ? (
                   <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
                     <CheckCircle2 size={12} /> Validado
                   </span>
-                )}
+                ) : null}
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground dark:text-white leading-tight font-display drop-shadow-sm dark:drop-shadow-md">
                 {meta.title}
               </h2>
 
-              <div className="flex items-center gap-3 mt-4">
-                <Link
-                  href={`/trilha/${meta.slug}`}
-                  onClick={() => playUiSound("click")}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-extrabold text-sm transition-all shadow-md hover:scale-105 active:scale-95"
-                >
-                  <Play size={16} className="fill-current" />
-                  {isPassed ? "Rever Módulo" : "Assistir Agora"}
-                </Link>
+              <div className="flex flex-wrap items-center gap-3 mt-4">
+                {isLocked ? (
+                  requiredModule ? (
+                    <Link
+                      href={`/trilha/${requiredModule.slug}`}
+                      onClick={() => {
+                        playUiSound("click");
+                        onClose();
+                      }}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-atlas-orange hover:bg-atlas-orange-2 text-white font-extrabold text-sm transition-all shadow-md hover:scale-105 active:scale-95"
+                    >
+                      <ArrowRight size={16} />
+                      Desbloquear no Módulo {String(requiredModule.number).padStart(2, "0")}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => playUiSound("lock")}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-700/80 text-white/60 font-extrabold text-sm cursor-not-allowed border border-white/10"
+                    >
+                      <Lock size={16} /> Bloqueado
+                    </button>
+                  )
+                ) : (
+                  <Link
+                    href={`/trilha/${meta.slug}`}
+                    onClick={() => {
+                      playUiSound("click");
+                      onClose();
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-extrabold text-sm transition-all shadow-md hover:scale-105 active:scale-95"
+                  >
+                    <Play size={16} className="fill-current" />
+                    {isPassed ? "Rever Módulo" : "Assistir Agora"}
+                  </Link>
+                )}
 
                 <button
                   onClick={handleToggleList}

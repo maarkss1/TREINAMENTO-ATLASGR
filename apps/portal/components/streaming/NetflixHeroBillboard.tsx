@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Info, Plus, Check, Volume2, VolumeX, Sparkles, Shield, Cpu, Award } from "lucide-react";
+import { Play, Info, Plus, Check, Volume2, VolumeX, Sparkles, Shield, Cpu, Award, Lock, ArrowRight } from "lucide-react";
 import type { ModuleMeta, ModuleProgress } from "@/lib/types";
+import { moduleMetas } from "@/content/modules";
 import { useOnboardingStore } from "@/lib/store";
 import { playUiSound } from "@/lib/soundEngine";
+import { isModuleUnlocked } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 import { ModuleTitle } from "@/components/brand/ModuleTitle";
@@ -30,6 +32,8 @@ export function NetflixHeroBillboard({
   const activeModule = featuredModules[currentIndex] || featuredModules[0];
   const isInMyList = activeModule ? myList.includes(activeModule.slug) : false;
   const isPassed = activeModule ? Boolean(progress[activeModule.slug]?.passed) : false;
+  const isLocked = activeModule ? !isModuleUnlocked(activeModule, progress, moduleMetas) : false;
+  const requiredModule = activeModule && isLocked ? moduleMetas.find((m) => m.number === activeModule.number - 1) : null;
 
   // Auto-cycle every 9 seconds
   useEffect(() => {
@@ -129,14 +133,34 @@ export function NetflixHeroBillboard({
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4">
-              <Link
-                href={`/trilha/${activeModule.slug}`}
-                onClick={() => playUiSound("click")}
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-black text-sm transition-all shadow-lg hover:scale-105 active:scale-95"
-              >
-                <Play size={18} className="fill-current" />
-                {isPassed ? "Rever Treinamento" : "Assistir Agora"}
-              </Link>
+              {isLocked ? (
+                requiredModule ? (
+                  <Link
+                    href={`/trilha/${requiredModule.slug}`}
+                    onClick={() => playUiSound("click")}
+                    className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-atlas-orange hover:bg-atlas-orange-2 text-white font-black text-sm transition-all shadow-lg hover:scale-105 active:scale-95 border border-white/20"
+                  >
+                    <ArrowRight size={18} />
+                    Desbloquear no Módulo {String(requiredModule.number).padStart(2, "0")}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => playUiSound("lock")}
+                    className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-zinc-800 text-zinc-400 font-black text-sm cursor-not-allowed border border-white/10"
+                  >
+                    <Lock size={18} /> Bloqueado
+                  </button>
+                )
+              ) : (
+                <Link
+                  href={`/trilha/${activeModule.slug}`}
+                  onClick={() => playUiSound("click")}
+                  className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:hover:bg-zinc-200 dark:text-black font-black text-sm transition-all shadow-lg hover:scale-105 active:scale-95"
+                >
+                  <Play size={18} className="fill-current" />
+                  {isPassed ? "Rever Treinamento" : "Assistir Agora"}
+                </Link>
+              )}
 
               <button
                 onClick={handleDetailsClick}
