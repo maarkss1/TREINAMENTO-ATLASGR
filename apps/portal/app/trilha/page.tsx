@@ -23,6 +23,11 @@ import { MasteryOverview } from "@/components/trail/MasteryOverview";
 import { NetflixContentRail } from "@/components/streaming/NetflixContentRail";
 import { ModuleDetailModal } from "@/components/streaming/ModuleDetailModal";
 import { moduleMetas, readyModuleSlugs } from "@/content/modules";
+import {
+  getHighestUnlockedModuleNumber,
+  getCurrentActiveModule,
+  isModuleUnlocked,
+} from "@/lib/progression";
 import { useOnboardingStore } from "@/lib/store";
 import { useRequireRegistration } from "@/lib/useRequireRegistration";
 import { Button } from "@/components/ui/Button";
@@ -42,6 +47,15 @@ function TrilhaContent() {
   const { registration, progress, myList = [] } = useOnboardingStore();
   const [viewMode, setViewMode] = useState<"rails" | "grid">("rails");
   const [selectedModule, setSelectedModule] = useState<ModuleMeta | null>(null);
+
+  const highestUnlocked = useMemo(
+    () => getHighestUnlockedModuleNumber(progress, moduleMetas),
+    [progress]
+  );
+  const activeModule = useMemo(
+    () => getCurrentActiveModule(progress, moduleMetas),
+    [progress]
+  );
 
   if (!isRegistered || !registration) return null;
 
@@ -249,6 +263,8 @@ function TrilhaContent() {
                   meta={module}
                   index={moduleMetas.findIndex((meta) => meta.slug === module.slug)}
                   isCompleted={Boolean(progress[module.slug]?.passed)}
+                  isLocked={!isModuleUnlocked(module, progress, moduleMetas)}
+                  isCurrent={module.slug === activeModule.slug}
                 />
               ))}
             </div>
@@ -267,6 +283,7 @@ function TrilhaContent() {
                 modules={modules}
                 progress={progress}
                 onOpenDetails={(mod) => setSelectedModule(mod)}
+                allModules={moduleMetas}
               />
             );
           })}
@@ -301,6 +318,8 @@ function TrilhaContent() {
                           meta={module}
                           index={moduleMetas.findIndex((meta) => meta.slug === module.slug)}
                           isCompleted={Boolean(progress[module.slug]?.passed)}
+                          isLocked={!isModuleUnlocked(module, progress, moduleMetas)}
+                          isCurrent={module.slug === activeModule.slug}
                         />
                       ))}
                     </div>

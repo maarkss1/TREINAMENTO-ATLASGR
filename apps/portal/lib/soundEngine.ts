@@ -15,7 +15,7 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-export type SoundEffect = "click" | "success" | "badge" | "levelUp" | "pop";
+export type SoundEffect = "click" | "success" | "badge" | "levelUp" | "pop" | "lock" | "hover" | "toggle";
 
 export function playUiSound(effect: SoundEffect = "click") {
   try {
@@ -24,7 +24,52 @@ export function playUiSound(effect: SoundEffect = "click") {
 
     const now = ctx.currentTime;
 
-    if (effect === "click") {
+    if (effect === "hover") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1400, now);
+      osc.frequency.exponentialRampToValueAtTime(1800, now + 0.025);
+
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.025);
+    } else if (effect === "toggle") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(480, now);
+      osc.frequency.exponentialRampToValueAtTime(720, now + 0.06);
+
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.06);
+    } else if (effect === "lock") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.12);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (effect === "click") {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";

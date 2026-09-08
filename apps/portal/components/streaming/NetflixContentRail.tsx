@@ -1,9 +1,15 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { useRef, useState, useEffect, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Sparkles, Lock } from "lucide-react";
 import type { ModuleMeta, ModuleProgress } from "@/lib/types";
 import { NetflixModuleCard } from "./NetflixModuleCard";
+import {
+  getHighestUnlockedModuleNumber,
+  getCurrentActiveModule,
+  isModuleUnlocked,
+} from "@/lib/progression";
+import { moduleMetas as defaultAllModules } from "@/content/modules";
 import { cn } from "@/lib/utils";
 
 interface NetflixContentRailProps {
@@ -14,6 +20,9 @@ interface NetflixContentRailProps {
   progress: Record<string, ModuleProgress>;
   onOpenDetails: (meta: ModuleMeta) => void;
   variant?: "standard" | "top10" | "compact";
+  focusMode?: boolean;
+  allModules?: ModuleMeta[];
+  onLockClick?: (meta: ModuleMeta) => void;
 }
 
 export function NetflixContentRail({
@@ -24,10 +33,31 @@ export function NetflixContentRail({
   progress,
   onOpenDetails,
   variant = "standard",
+  focusMode = false,
+  allModules = defaultAllModules,
+  onLockClick,
 }: NetflixContentRailProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const highestUnlocked = useMemo(
+    () => getHighestUnlockedModuleNumber(progress, allModules),
+    [progress, allModules]
+  );
+
+  const activeModule = useMemo(
+    () => getCurrentActiveModule(progress, allModules),
+    [progress, allModules]
+  );
+
+  // Se o modo foco estiver ativo, exibimos os módulos liberados e no máximo o próximo imediato (teaser)
+  const displayModules = useMemo(() => {
+    if (!focusMode) return modules;
+    return modules.filter(
+      (m) => isModuleUnlocked(m, progress, allModules) || m.number === highestUnlocked + 1
+    );
+  }, [modules, focusMode, progress, allModules, highestUnlocked]);
 
   const checkScroll = () => {
     if (rowRef.current) {
@@ -41,7 +71,7 @@ export function NetflixContentRail({
     checkScroll();
     window.addEventListener("resize", checkScroll);
     return () => window.removeEventListener("resize", checkScroll);
-  }, [modules]);
+  }, [displayModules]);
 
   const handleScroll = (direction: "left" | "right") => {
     if (rowRef.current) {
@@ -52,7 +82,34 @@ export function NetflixContentRail({
     }
   };
 
-  if (!modules || modules.length === 0) return null;
+  if (!displayModules || displayModules.length === 0) {
+    // Se o trilho estiver totalmente bloqueado no modo foco, exibe um placeholder informativo compacto
+    if (focusMode && modules.length > 0) {
+      return (
+        <section className="py-3 px-6 sm:px-10 lg:px-14">
+          <div className="mx-auto max-w-[1700px] p-5 rounded-2xl border border-dashed border-border dark:border-white/10 bg-surface/50 dark:bg-white/[0.02] flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-surface-2 dark:bg-white/5 flex items-center justify-center text-muted dark:text-zinc-500 border border-border dark:border-white/10">
+                <Lock size={18} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-muted dark:text-zinc-400 font-display">
+                  {title}
+                </h3>
+                <p className="text-xs text-muted dark:text-zinc-500">
+                  Bloqueado: avance nos módulos anteriores para liberar esta série ({modules.length} módulos).
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted dark:text-zinc-600 bg-surface-2 dark:bg-white/5 px-2.5 py-1 rounded-full border border-border dark:border-white/10">
+              Próxima Fase
+            </span>
+          </div>
+        </section>
+      );
+    }
+    return null;
+  }
 
   return (
     <section className="relative py-4 sm:py-6 group/rail">
@@ -79,7 +136,7 @@ export function NetflixContentRail({
 
         {/* Action / Count */}
         <div className="hidden sm:flex items-center gap-2 text-xs text-muted dark:text-zinc-400 font-semibold font-mono">
-          <span>{modules.length} MÓDULOS</span>
+          <span>{displayModules.length} DISPONÍVEIS</span>
         </div>
       </div>
 
@@ -102,16 +159,24 @@ export function NetflixContentRail({
           onScroll={checkScroll}
           className="flex items-center gap-4 overflow-x-auto no-scrollbar scroll-smooth px-6 sm:px-10 lg:px-14 py-2"
         >
-          {modules.map((module, index) => (
-            <NetflixModuleCard
-              key={module.slug}
-              meta={module}
-              progress={progress[module.slug]}
-              rankIndex={variant === "top10" ? index : undefined}
-              onOpenDetails={onOpenDetails}
-              variant={variant}
-            />
-          ))}
+          {displayModules.map((module, index) => {
+            const isLocked = !isModuleUnlocked(module, progress, allModules);
+            const isCurrent = module.slug === activeModule.slug;
+
+            return (
+              <NetflixModuleCard
+                key={module.slug}
+                meta={module}
+                progress={progress[module.slug]}
+                rankIndex={variant === "top10" ? index : undefined}
+                onOpenDetails={onOpenDetails}
+                variant={variant}
+                isLocked={isLocked}
+                isCurrent={isCurrent}
+                onLockClick={() => onLockClick?.(module)}
+              />
+            );
+          })}
         </div>
 
         {/* Right Scroll Chevron */}

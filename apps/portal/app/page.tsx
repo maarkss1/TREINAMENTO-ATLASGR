@@ -22,6 +22,12 @@ import { NetflixModuleCard } from "@/components/streaming/NetflixModuleCard";
 import { ModuleDetailModal } from "@/components/streaming/ModuleDetailModal";
 import { AppleBentoShowcase } from "@/components/streaming/AppleBentoShowcase";
 import { GamificationBar } from "@/components/gamification/GamificationBar";
+import { CurrentMissionSpotlight } from "@/components/streaming/CurrentMissionSpotlight";
+import {
+  getHighestUnlockedModuleNumber,
+  getCurrentActiveModule,
+  isModuleUnlocked,
+} from "@/lib/progression";
 import { moduleMetas } from "@/content/modules";
 import { useOnboardingStore } from "@/lib/store";
 import type { ModuleMeta } from "@/lib/types";
@@ -31,10 +37,20 @@ export default function HomePage() {
   const router = useRouter();
   const [selectedModule, setSelectedModule] = useState<ModuleMeta | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [focusMode, setFocusMode] = useState<boolean>(true);
 
   const registration = useOnboardingStore((state) => state.registration);
   const progress = useOnboardingStore((state) => state.progress);
   const myList = useOnboardingStore((state) => state.myList || []);
+
+  const highestUnlocked = useMemo(
+    () => getHighestUnlockedModuleNumber(progress, moduleMetas),
+    [progress]
+  );
+  const activeModule = useMemo(
+    () => getCurrentActiveModule(progress, moduleMetas),
+    [progress]
+  );
 
   // Garante inicialização fluida da sessão corporativa
   useEffect(() => {
@@ -179,6 +195,16 @@ export default function HomePage() {
         <GamificationBar variant="full" />
       </div>
 
+      {/* Spotlight Gamificado: Sua Missão Atual (Passo a Passo Focado) */}
+      <CurrentMissionSpotlight
+        module={activeModule}
+        progress={progress[activeModule.slug]}
+        totalModules={moduleMetas.length}
+        onOpenDetails={(mod) => setSelectedModule(mod)}
+        focusMode={focusMode}
+        onToggleFocusMode={setFocusMode}
+      />
+
       {/* Conteúdo em Trilhos (Netflix Rails) ou Filtrado */}
       <main className="space-y-6 pt-2">
         {selectedFilter !== "all" ? (
@@ -203,14 +229,23 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center sm:justify-items-start">
-                {filteredModules.map((module) => (
-                  <NetflixModuleCard
-                    key={module.slug}
-                    meta={module}
-                    progress={progress[module.slug]}
-                    onOpenDetails={(mod) => setSelectedModule(mod)}
-                  />
-                ))}
+                {filteredModules
+                  .filter((m) => !focusMode || isModuleUnlocked(m, progress, moduleMetas) || m.number === highestUnlocked + 1)
+                  .map((module) => {
+                    const isLocked = !isModuleUnlocked(module, progress, moduleMetas);
+                    const isCurrent = module.slug === activeModule.slug;
+
+                    return (
+                      <NetflixModuleCard
+                        key={module.slug}
+                        meta={module}
+                        progress={progress[module.slug]}
+                        onOpenDetails={(mod) => setSelectedModule(mod)}
+                        isLocked={isLocked}
+                        isCurrent={isCurrent}
+                      />
+                    );
+                  })}
               </div>
             )}
           </div>
@@ -226,6 +261,8 @@ export default function HomePage() {
                 modules={inProgressModules}
                 progress={progress}
                 onOpenDetails={(mod) => setSelectedModule(mod)}
+                focusMode={focusMode}
+                allModules={moduleMetas}
               />
             )}
 
@@ -237,6 +274,8 @@ export default function HomePage() {
               modules={trilhaIntegracao}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
+              focusMode={focusMode}
+              allModules={moduleMetas}
             />
 
             {/* Trilho 2: Gerenciamento de Risco, PGR & Apólices */}
@@ -247,6 +286,8 @@ export default function HomePage() {
               modules={trilhaRisco}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
+              focusMode={focusMode}
+              allModules={moduleMetas}
             />
 
             {/* Trilho 3: Sistemas & Softwares */}
@@ -257,6 +298,8 @@ export default function HomePage() {
               modules={trilhaSistemas}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
+              focusMode={focusMode}
+              allModules={moduleMetas}
             />
 
             {/* Trilho 4: Torre de Controle 24h & Tratativa de Alertas */}
@@ -267,6 +310,8 @@ export default function HomePage() {
               modules={trilhaOperacao}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
+              focusMode={focusMode}
+              allModules={moduleMetas}
             />
 
             {/* Trilho 5: Inteligência Comercial & Clientes */}
@@ -277,6 +322,8 @@ export default function HomePage() {
               modules={trilhaComercial}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
+              focusMode={focusMode}
+              allModules={moduleMetas}
             />
 
             {/* Trilho 6: Certificação Oficial */}
@@ -287,6 +334,8 @@ export default function HomePage() {
               modules={trilhaCertificacao}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
+              focusMode={focusMode}
+              allModules={moduleMetas}
             />
 
             {/* Vitrine Bento Grid Apple & Samsung */}
