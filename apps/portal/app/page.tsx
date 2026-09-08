@@ -18,6 +18,7 @@ import {
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { NetflixHeroBillboard } from "@/components/streaming/NetflixHeroBillboard";
 import { NetflixContentRail } from "@/components/streaming/NetflixContentRail";
+import { NetflixModuleCard } from "@/components/streaming/NetflixModuleCard";
 import { ModuleDetailModal } from "@/components/streaming/ModuleDetailModal";
 import { AppleBentoShowcase } from "@/components/streaming/AppleBentoShowcase";
 import { GamificationBar } from "@/components/gamification/GamificationBar";
@@ -177,50 +178,14 @@ export default function HomePage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center sm:justify-items-start">
                 {filteredModules.map((module) => (
-                  <div key={module.slug}>
-                    {/* Reutiliza o card Netflix */}
-                    <div
-                      onClick={() => setSelectedModule(module)}
-                      className="group cursor-pointer rounded-xl overflow-hidden border border-border dark:border-white/10 bg-surface dark:bg-[#121319] hover:border-atlas-orange/50 transition-all hover:scale-[1.03] shadow-sm"
-                    >
-                      <div className="aspect-[16/9] relative bg-gradient-to-br from-zinc-800 to-black p-4 flex flex-col justify-between">
-                        <div className="flex justify-between items-center">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest bg-black/60 text-white border border-white/10">
-                            Módulo {String(module.number).padStart(2, "0")}
-                          </span>
-                          {progress[module.slug]?.passed && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                              Validado
-                            </span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-atlas-orange font-bold uppercase tracking-wider">
-                            {module.category}
-                          </p>
-                          <h4 className="text-sm font-black text-white font-display line-clamp-1">
-                            {module.title}
-                          </h4>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <p className="text-xs text-muted dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                          {module.shortDescription}
-                        </p>
-                        <div className="mt-4 flex items-center justify-between pt-3 border-t border-border dark:border-white/10 text-xs">
-                          <span className="text-muted dark:text-zinc-500 font-mono">{module.durationMinutes} min</span>
-                          <Link
-                            href={`/trilha/${module.slug}`}
-                            className="text-atlas-orange font-bold hover:underline inline-flex items-center gap-1"
-                          >
-                            Assistir <ArrowRight size={13} />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <NetflixModuleCard
+                    key={module.slug}
+                    meta={module}
+                    progress={progress[module.slug]}
+                    onOpenDetails={(mod) => setSelectedModule(mod)}
+                  />
                 ))}
               </div>
             )}

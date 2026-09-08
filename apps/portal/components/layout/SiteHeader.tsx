@@ -91,43 +91,45 @@ export function SiteHeader({ hideNavLinks = false }: { hideNavLinks?: boolean })
           hidden ? "-translate-y-full" : "translate-y-0"
         )}
       >
-        <div className="mx-auto flex h-full max-w-[1700px] items-center justify-between px-6 sm:px-10 lg:px-14">
-          {/* Logo Brand */}
-          <Link href="/" className="group flex items-center gap-2">
-            <div className="transition-transform duration-300 group-hover:scale-105">
-              <Logo />
-            </div>
-          </Link>
+        <div className="mx-auto flex h-full max-w-[1700px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-12">
+          {/* Logo Brand + Nav Links (Grouped with generous spacing) */}
+          <div className="flex items-center gap-6 xl:gap-8 min-w-0">
+            <Link href="/" className="group flex items-center shrink-0">
+              <div className="transition-transform duration-300 group-hover:scale-105">
+                <Logo />
+              </div>
+            </Link>
 
-          {/* Navigation Links (Netflix & Apple Style) */}
-          {!hideNavLinks && (
-            <nav
-              aria-label="Navegação principal"
-              className="hidden items-center gap-6 lg:flex"
-            >
-              {links.map((l) => {
-                const isActive = l.href === "/" ? pathname === "/" : pathname?.startsWith(l.href);
-                return (
-                  <Link
-                    key={l.href}
-                    href={l.href}
-                    aria-current={isActive ? "page" : undefined}
-                    className={cn(
-                      "text-xs sm:text-sm font-semibold transition-all relative py-1.5 focus-visible-ring rounded-sm",
-                      isActive
-                        ? "text-foreground font-bold dark:text-white"
-                        : "text-muted hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
-                    )}
-                  >
-                    {l.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-atlas-orange rounded-full shadow-[0_0_8px_#FF5618]" />
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-          )}
+            {/* Navigation Links (Netflix & Apple Style) */}
+            {!hideNavLinks && (
+              <nav
+                aria-label="Navegação principal"
+                className="hidden items-center gap-3.5 xl:gap-5 lg:flex"
+              >
+                {links.map((l) => {
+                  const isActive = l.href === "/" ? pathname === "/" : pathname?.startsWith(l.href);
+                  return (
+                    <Link
+                      key={l.href}
+                      href={l.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "text-xs xl:text-[13px] font-semibold transition-all relative py-1.5 whitespace-nowrap focus-visible-ring rounded-sm",
+                        isActive
+                          ? "text-foreground font-black dark:text-white"
+                          : "text-muted hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
+                      )}
+                    >
+                      {l.label}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-0 w-full h-[2px] bg-atlas-orange rounded-full shadow-[0_0_8px_#FF5618]" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+          </div>
 
           {/* Utility Right Bar */}
           <div className="flex items-center gap-3 sm:gap-4">

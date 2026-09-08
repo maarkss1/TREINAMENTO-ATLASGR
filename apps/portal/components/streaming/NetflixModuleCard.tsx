@@ -7,6 +7,7 @@ import type { ModuleMeta, ModuleProgress } from "@/lib/types";
 import { useOnboardingStore } from "@/lib/store";
 import { playUiSound } from "@/lib/soundEngine";
 import { moduleIcons } from "@/lib/moduleIcons";
+import { BASE_PATH } from "@/lib/basePath";
 import { cn } from "@/lib/utils";
 
 interface NetflixModuleCardProps {
@@ -93,7 +94,7 @@ export function NetflixModuleCard({
         <div className="absolute inset-0 bg-[#0d0e14]">
           {meta.imageUrl ? (
             <img
-              src={meta.imageUrl}
+              src={meta.imageUrl.startsWith("http") ? meta.imageUrl : `${BASE_PATH}${meta.imageUrl}`}
               alt={meta.title}
               className="w-full h-full object-cover opacity-60 dark:opacity-40 group-hover:scale-105 group-hover:opacity-75 transition-all duration-500"
               onError={(e) => {

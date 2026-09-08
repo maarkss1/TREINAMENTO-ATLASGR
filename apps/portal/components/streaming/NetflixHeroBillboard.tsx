@@ -176,8 +176,10 @@ export function NetflixHeroBillboard({
                 setCurrentIndex(idx);
               }}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                idx === currentIndex ? "w-8 bg-atlas-orange" : "w-2 bg-zinc-400/50 dark:bg-white/30 hover:bg-zinc-600 dark:hover:bg-white/60"
+                "h-2 rounded-full transition-all duration-300",
+                idx === currentIndex
+                  ? "w-8 bg-atlas-orange shadow-[0_0_8px_#FF5618]"
+                  : "w-2.5 bg-zinc-400 dark:bg-white/40 hover:bg-zinc-600 dark:hover:bg-white/80"
               )}
               aria-label={`Ver destaque ${idx + 1}`}
             />

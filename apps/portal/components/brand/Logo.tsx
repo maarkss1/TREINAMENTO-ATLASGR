@@ -14,7 +14,7 @@ export function Logo({ className, withWordmark = true }: { className?: string; w
     );
   }
   return (
-    <span className={cn("inline-flex items-center", className)} role="img" aria-label="ATLASGR">
+    <span className={cn("inline-flex items-center shrink-0 min-w-[140px] h-[31px]", className)} role="img" aria-label="ATLASGR">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`${BASE_PATH}/brand/atlas-logo.svg`}
@@ -22,7 +22,7 @@ export function Logo({ className, withWordmark = true }: { className?: string; w
         aria-hidden="true"
         width={140}
         height={31}
-        className="block dark:hidden"
+        className="block dark:hidden shrink-0 w-[140px] h-[31px]"
       />
       {/* Variante negativa oficial: preserva o símbolo laranja e o nome branco. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -32,7 +32,7 @@ export function Logo({ className, withWordmark = true }: { className?: string; w
         aria-hidden="true"
         width={140}
         height={31}
-        className="hidden dark:block"
+        className="hidden dark:block shrink-0 w-[140px] h-[31px]"
       />
     </span>
   );

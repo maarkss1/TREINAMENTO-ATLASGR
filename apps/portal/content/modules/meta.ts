@@ -20,7 +20,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 35,
     status: "ready",
     category: "Fundamentos",
-    imageUrl: "/brand/modules/02-logistica.svg",
+    imageUrl: "/brand/screenshots/connect_plus_motorista.png",
     imageCaption: "Fluxos e atores da cadeia logística",
   },
   {
@@ -31,7 +31,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 55,
     status: "ready",
     category: "Fundamentos",
-    imageUrl: "/brand/modules/03-risco.svg",
+    imageUrl: "/brand/screenshots/newconnect_tela_alerta.png",
     imageCaption: "Camadas de prevenção, sinal e decisão",
   },
   {
@@ -75,7 +75,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 30,
     status: "ready",
     category: "Soluções ATLASGR",
-    imageUrl: "/brand/modules/07-integracoes.svg",
+    imageUrl: "/brand/screenshots/connect_plus_sm.png",
     imageCaption: "Fluxo de dados entre sistemas e integrações",
   },
   {
@@ -86,7 +86,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 30,
     status: "ready",
     category: "Mercado e clientes",
-    imageUrl: "/brand/modules/08-clientes.svg",
+    imageUrl: "/brand/screenshots/connect_plus_principal.png",
     imageCaption: "Perfis de clientes e contexto operacional",
   },
   {
@@ -97,7 +97,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 40,
     status: "ready",
     category: "Mercado e clientes",
-    imageUrl: "/brand/modules/09-comercial.svg",
+    imageUrl: "/brand/screenshots/newconnect_monitoramento_sm.png",
     imageCaption: "Pesquisa, descoberta, qualificação e handoff comercial",
   },
   {
@@ -108,7 +108,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 30,
     status: "ready",
     category: "Excelência operacional",
-    imageUrl: "/brand/modules/10-glossario.svg",
+    imageUrl: "/brand/screenshots/portalatlas-sm.png",
     imageCaption: "Termos técnicos traduzidos em significado operacional",
   },
   {
@@ -119,7 +119,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 45,
     status: "ready",
     category: "Excelência operacional",
-    imageUrl: "/brand/modules/11-operacao.svg",
+    imageUrl: "/brand/screenshots/newconnect_dashboard.png",
     imageCaption: "Priorização, evidência, comunicação e handoff",
   },
   {
@@ -130,7 +130,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 30,
     status: "ready",
     category: "Excelência operacional",
-    imageUrl: "/brand/modules/12-compliance.svg",
+    imageUrl: "/brand/screenshots/perfil_securitario_recentes.png",
     imageCaption: "Privacidade, segurança da informação e rastreabilidade",
   },
   {
@@ -141,7 +141,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 35,
     status: "ready",
     category: "Excelência operacional",
-    imageUrl: "/brand/modules/13-tecnologia.svg",
+    imageUrl: "/brand/screenshots/newconnect-dashboard.png",
     imageCaption: "Sensoriamento, conectividade, sistema e decisão",
   },
   {
@@ -152,7 +152,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 30,
     status: "ready",
     category: "Excelência operacional",
-    imageUrl: "/brand/modules/14-casos.svg",
+    imageUrl: "/brand/screenshots/perfil_securitario_profile.png",
     imageCaption: "Aprendizagem estruturada a partir de casos",
   },
   {
@@ -163,7 +163,7 @@ export const moduleMetas: ModuleMeta[] = [
     durationMinutes: 30,
     status: "ready",
     category: "Conclusão",
-    imageUrl: "/brand/modules/15-preparacao.svg",
+    imageUrl: "/brand/module_banner.jpg",
     imageCaption: "Síntese, aplicação e validação de domínio",
   },
 ];
