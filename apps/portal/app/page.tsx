@@ -83,28 +83,52 @@ export default function HomePage() {
     });
   }, [progress]);
 
+  // Módulos agrupados por trilhas táticas da AtlasGR
+  const trilhaIntegracao = useMemo(
+    () => moduleMetas.filter((m) => [1, 2].includes(m.number)),
+    []
+  );
+  const trilhaRisco = useMemo(
+    () => moduleMetas.filter((m) => [3, 12].includes(m.number)),
+    []
+  );
+  const trilhaSistemas = useMemo(
+    () => moduleMetas.filter((m) => [4, 5, 6, 7].includes(m.number)),
+    []
+  );
+  const trilhaOperacao = useMemo(
+    () => moduleMetas.filter((m) => [10, 11, 13, 14].includes(m.number)),
+    []
+  );
+  const trilhaComercial = useMemo(
+    () => moduleMetas.filter((m) => [8, 9].includes(m.number)),
+    []
+  );
+  const trilhaCertificacao = useMemo(
+    () => moduleMetas.filter((m) => [15].includes(m.number)),
+    []
+  );
+
   // Filtro de categorias
   const filteredModules = useMemo(() => {
     if (selectedFilter === "all") return moduleMetas;
     if (selectedFilter === "mylist") return moduleMetas.filter((m) => myList.includes(m.slug));
-    if (selectedFilter === "fundamentos") return moduleMetas.filter((m) => m.category === "Fundamentos");
-    if (selectedFilter === "solucoes") return moduleMetas.filter((m) => m.category === "Soluções ATLASGR");
-    if (selectedFilter === "operacao")
-      return moduleMetas.filter((m) => m.category === "Excelência operacional" || m.category === "Mercado e clientes");
+    if (selectedFilter === "integracao") return trilhaIntegracao;
+    if (selectedFilter === "risco") return trilhaRisco;
+    if (selectedFilter === "sistemas") return trilhaSistemas;
+    if (selectedFilter === "operacao") return trilhaOperacao;
+    if (selectedFilter === "comercial") return trilhaComercial;
     return moduleMetas;
-  }, [selectedFilter, myList]);
-
-  const fundamentosModules = moduleMetas.filter((m) => m.category === "Fundamentos");
-  const solucoesModules = moduleMetas.filter((m) => m.category === "Soluções ATLASGR");
-  const mercadoModules = moduleMetas.filter((m) => m.category === "Mercado e clientes");
-  const operacaoModules = moduleMetas.filter((m) => m.category === "Excelência operacional" || m.category === "Conclusão");
+  }, [selectedFilter, myList, trilhaIntegracao, trilhaRisco, trilhaSistemas, trilhaOperacao, trilhaComercial]);
 
   const filterTabs = [
     { id: "all", label: "Todos os Módulos" },
     { id: "mylist", label: `Minha Lista (${myList.length})` },
-    { id: "fundamentos", label: "Fundamentos & Risco" },
-    { id: "solucoes", label: "Software & Connect" },
-    { id: "operacao", label: "Excelência Operacional" },
+    { id: "integracao", label: "Integração & Cultura" },
+    { id: "risco", label: "PGR & Risco" },
+    { id: "sistemas", label: "Connect & Sistemas" },
+    { id: "operacao", label: "Torre 24h & Alertas" },
+    { id: "comercial", label: "Comercial & Clientes" },
   ];
 
   return (
@@ -205,39 +229,62 @@ export default function HomePage() {
               />
             )}
 
-            {/* Trilho: Fundamentos & Risco */}
+            {/* Trilho 1: Integração & Cultura */}
             <NetflixContentRail
-              title="Série: Fundamentos da Logística & PGR"
-              subtitle="Conceitos essenciais de gerenciamento de risco, supply chain e cultura Atlas"
-              modules={fundamentosModules}
+              title="Formação Inicial & Cultura AtlasGR"
+              subtitle="Propósito, história, valores inegociáveis e introdução à cadeia de suprimentos"
+              badge="Onboarding"
+              modules={trilhaIntegracao}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
             />
 
-            {/* Trilho: Soluções Tecnológicas AtlasGR */}
+            {/* Trilho 2: Gerenciamento de Risco, PGR & Apólices */}
             <NetflixContentRail
-              title="Série: Software, IA & Ecossistema Connect"
-              subtitle="Atlas Connect, Atlas Profile, integrações de sensores e telemetria avançada"
-              badge="Tecnologia"
-              modules={solucoesModules}
+              title="Gerenciamento de Risco, PGR & Compliance"
+              subtitle="Normas securitárias, apólices RCF-DC, compliance LGPD e camadas de proteção"
+              badge="Segurança"
+              modules={trilhaRisco}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
             />
 
-            {/* Trilho: Mercado & Clientes */}
+            {/* Trilho 3: Sistemas & Softwares */}
             <NetflixContentRail
-              title="Série: Inteligência Comercial & Mercado"
-              subtitle="Perfis de embarcadores, transportadoras, prospecção e diferencial competitivo"
-              modules={mercadoModules}
+              title="Sistemas Atlas: Connect, Profile & Integrações"
+              subtitle="Portal Atlas Connect, cadastro de SM, Atlas Profile e comunicação com TMS/rastreadores"
+              badge="Sistemas"
+              modules={trilhaSistemas}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
             />
 
-            {/* Trilho: Excelência Operacional & Casos Reais */}
+            {/* Trilho 4: Torre de Controle 24h & Tratativa de Alertas */}
             <NetflixContentRail
-              title="Série: Sala de Guerra & Excelência Operacional"
-              subtitle="Procedimentos diários da Central, compliance LGPD, casos reais de sinistro e preparação final"
-              modules={operacaoModules}
+              title="Torre de Controle 24h: Alertas, SLAs & Casos Reais"
+              subtitle="SLA de tratativa (10 min / 45 min), alertas 5 e 6, desvio de rota, perda de sinal e malícia"
+              badge="Operação Crítica"
+              modules={trilhaOperacao}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+            />
+
+            {/* Trilho 5: Inteligência Comercial & Clientes */}
+            <NetflixContentRail
+              title="Inteligência Comercial & Gestão de Clientes"
+              subtitle="Perfis de embarcadores e transportadoras, ICP, persona e diferenciais competitivos"
+              badge="Comercial"
+              modules={trilhaComercial}
+              progress={progress}
+              onOpenDetails={(mod) => setSelectedModule(mod)}
+            />
+
+            {/* Trilho 6: Certificação Oficial */}
+            <NetflixContentRail
+              title="Certificação Oficial & Homologação Operacional"
+              subtitle="Revisão geral de conteúdo consolidado e validação final de domínio técnico"
+              badge="Conclusão"
+              modules={trilhaCertificacao}
               progress={progress}
               onOpenDetails={(mod) => setSelectedModule(mod)}
             />
