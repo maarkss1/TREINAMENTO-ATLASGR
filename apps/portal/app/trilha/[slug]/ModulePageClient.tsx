@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Compass,
+  Lock,
   Map as MapIcon,
   Maximize,
   Minimize,
@@ -25,6 +26,8 @@ import { QuizRunner } from "@/components/quiz/QuizRunner";
 import { moduleMetas, getModuleMeta, getModuleContent } from "@/content/modules";
 import { getPracticeLab } from "@/content/learning-blueprint";
 import { getQuizForModule } from "@/content/quizzes-v2";
+import { isModuleUnlocked } from "@/lib/progression";
+import { playUiSound } from "@/lib/soundEngine";
 import { useOnboardingStore } from "@/lib/store";
 import { useRequireRegistration } from "@/lib/useRequireRegistration";
 import { ImmersiveStory } from "@/components/module/ImmersiveStory";
@@ -187,6 +190,58 @@ export function ModulePageClient() {
   }
 
   if (!ready || !registration || !meta) return null;
+
+  // Verificação de Pré-requisito: se o módulo estiver bloqueado, protege o acesso
+  const isUnlocked = isModuleUnlocked(meta, progress, moduleMetas);
+  if (!isUnlocked) {
+    const requiredModule = moduleMetas.find((m) => m.number === meta.number - 1);
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-atlas-orange selection:text-white">
+        <SiteHeader />
+        <main className="flex-1 flex items-center justify-center p-6 sm:p-10">
+          <div className="max-w-md w-full text-center p-8 sm:p-10 rounded-3xl border-2 border-amber-500/30 bg-surface dark:bg-[#121319] shadow-2xl space-y-6 select-none">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/25 text-amber-400 flex items-center justify-center shadow-inner">
+              <Lock size={36} />
+            </div>
+
+            <div className="space-y-2">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                🔒 Acesso Bloqueado
+              </span>
+              <h1 className="text-2xl font-black font-display text-foreground">
+                Pré-requisito Necessário
+              </h1>
+              <p className="text-xs sm:text-sm text-muted leading-relaxed">
+                Para manter sua evolução focada, conclua e seja aprovado no{" "}
+                <strong className="text-foreground">{requiredModule?.title || `Módulo ${meta.number - 1}`}</strong> antes de iniciar este treinamento.
+              </p>
+            </div>
+
+            <div className="pt-2 space-y-3">
+              {requiredModule && (
+                <Link
+                  href={`/trilha/${requiredModule.slug}`}
+                  onClick={() => playUiSound("click")}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-atlas-orange via-[#ff6a33] to-[#e04509] text-white font-extrabold text-sm transition-all shadow-glow hover:scale-102 active:scale-98 border border-white/20"
+                >
+                  <span>Ir para o Módulo {String(requiredModule.number).padStart(2, "0")}</span>
+                  <ArrowRight size={16} />
+                </Link>
+              )}
+
+              <Link
+                href="/trilha"
+                onClick={() => playUiSound("click")}
+                className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl text-xs font-semibold text-muted hover:text-foreground transition-colors"
+              >
+                Voltar para a Trilha
+              </Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (meta.status === "building" || !content || !screen) {
     return (

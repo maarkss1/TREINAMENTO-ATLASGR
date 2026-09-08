@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { Award, BarChart3, BookOpen, ChevronRight, Clock, Compass, Target, Trophy } from "lucide-react";
+import { Award, BarChart3, BookOpen, ChevronRight, Clock, Compass, Target, Trophy, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { PremiumCard } from "@/components/ui/PremiumCard";
+import { ModuleCard } from "@/components/trail/ModuleCard";
 import { useOnboardingStore } from "@/lib/store";
 import { useRequireRegistration } from "@/lib/useRequireRegistration";
 import { moduleMetas, readyModuleSlugs } from "@/content/modules";
 import { levelProgress } from "@/lib/gamification";
+import {
+  getCurrentActiveModule,
+  getHighestUnlockedModuleNumber,
+  isModuleUnlocked,
+} from "@/lib/progression";
+import { playUiSound } from "@/lib/soundEngine";
 
 export default function DashboardPage() {
   const { ready, registration } = useRequireRegistration();
@@ -18,7 +25,10 @@ export default function DashboardPage() {
 
   const { current, next, pct } = levelProgress(xp);
   const completedReady = readyModuleSlugs.filter((slug) => progress[slug]?.passed).length;
-  const nextModule = moduleMetas.find((courseModule) => courseModule.status === "ready" && !progress[courseModule.slug]?.passed);
+  const highestUnlocked = getHighestUnlockedModuleNumber(progress, moduleMetas);
+  const activeModule = getCurrentActiveModule(progress, moduleMetas);
+  const allCompleted = completedReady === readyModuleSlugs.length;
+  const nextModule = !allCompleted ? activeModule : null;
   const evaluated = readyModuleSlugs.filter((slug) => typeof progress[slug]?.bestScore === "number");
   const averageScore = evaluated.length
     ? Math.round(evaluated.reduce((sum, slug) => sum + (progress[slug]?.bestScore ?? 0), 0) / evaluated.length)
@@ -121,6 +131,49 @@ export default function DashboardPage() {
             <Link href="/ranking" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-atlas-orange hover:underline">Ver quadro completo de domínio <ChevronRight size={15} aria-hidden="true" /></Link>
           </PremiumCard>
         </div>
+
+        {/* Seção de Módulos da Sua Formação (Cards Redondos AtlasGR) */}
+        <section className="mt-12">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-atlas-orange/15 text-atlas-orange border border-atlas-orange/25 mb-2">
+                <Sparkles size={11} /> Progressão Sequencial
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black font-display text-foreground">
+                Sua Trilha Ativa
+              </h2>
+              <p className="text-xs sm:text-sm text-muted mt-1">
+                Conclua os simuladores para desbloquear gradualmente os próximos módulos
+              </p>
+            </div>
+            <Link
+              href="/trilha"
+              onClick={() => playUiSound("click")}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-atlas-orange hover:underline"
+            >
+              Abrir Trilha Completa <ChevronRight size={14} />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {moduleMetas
+              .filter((m) => isModuleUnlocked(m, progress, moduleMetas) || m.number === highestUnlocked + 1)
+              .map((module) => {
+                const isLocked = !isModuleUnlocked(module, progress, moduleMetas);
+                const isCurrent = module.slug === activeModule.slug;
+                return (
+                  <ModuleCard
+                    key={module.slug}
+                    meta={module}
+                    index={moduleMetas.findIndex((meta) => meta.slug === module.slug)}
+                    isCompleted={Boolean(progress[module.slug]?.passed)}
+                    isLocked={isLocked}
+                    isCurrent={isCurrent}
+                  />
+                );
+              })}
+          </div>
+        </section>
       </main>
     </div>
   );
